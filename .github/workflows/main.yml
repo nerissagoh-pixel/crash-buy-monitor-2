@@ -1,0 +1,45 @@
+name: Crash Buy Monitor
+
+on:
+  schedule:
+    - cron: "30 21 * * 1-5"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: crash-monitor
+  cancel-in-progress: false
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Run monitor
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID:   ${{ secrets.TELEGRAM_CHAT_ID }}
+          DRY_POWDER_SGD:     ${{ secrets.DRY_POWDER_SGD }}
+          HEALTHCHECK_URL:    ${{ secrets.HEALTHCHECK_URL }}
+        run: python crash_monitor.py
+      - name: Save updated state back to repo
+        if: always()
+        run: |
+          git config user.name  "crash-monitor-bot"
+          git config user.email "actions@github.com"
+          git add monitor_state.json || true
+          if git diff --staged --quiet; then
+            echo "No state change to commit."
+          else
+            git commit -m "Update monitor state [skip ci]"
+            git push
+          fi
