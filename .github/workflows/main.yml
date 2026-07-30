@@ -2,6 +2,11 @@ name: Crash Buy Monitor
 
 on:
   schedule:
+    - cron: "30 13 * * 1-5"
+    - cron: "0 14 * * 1-5"
+    - cron: "30 14 * * 1-5"
+    - cron: "0 15 * * 1-5"
+    - cron: "30 15 * * 1-5"
     - cron: "30 21 * * 1-5"
   workflow_dispatch:
 
@@ -30,6 +35,7 @@ jobs:
           TELEGRAM_CHAT_ID:   ${{ secrets.TELEGRAM_CHAT_ID }}
           DRY_POWDER_SGD:     ${{ secrets.DRY_POWDER_SGD }}
           HEALTHCHECK_URL:    ${{ secrets.HEALTHCHECK_URL }}
+          SEND_SUMMARY: ${{ (github.event_name != 'schedule' || github.event.schedule == '30 21 * * 1-5') && '1' || '0' }}
         run: python crash_monitor.py
       - name: Save updated state back to repo
         if: always()
@@ -41,5 +47,9 @@ jobs:
             echo "No state change to commit."
           else
             git commit -m "Update monitor state [skip ci]"
-            git push
+            for i in 1 2 3; do
+              git pull --rebase --autostash origin main && git push && break
+              echo "push retry $i..."
+              sleep 3
+            done
           fi
