@@ -33,6 +33,7 @@ import time
 from datetime import datetime, timezone
 
 import requests
+import pandas as pd
 
 try:
     from zoneinfo import ZoneInfo          # Python 3.9+ (stdlib)
@@ -48,7 +49,19 @@ import yfinance as yf
 TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
 TELEGRAM_CHAT_ID   = os.environ.get("TELEGRAM_CHAT_ID", "").strip()
 HEALTHCHECK_URL    = os.environ.get("HEALTHCHECK_URL", "").strip()   # optional
-TOTAL_DRY_POWDER_SGD = float(os.environ.get("DRY_POWDER_SGD", "20000"))
+
+# DRY_POWDER_SGD may be unset OR passed as an empty string by GitHub Actions
+# when the secret doesn't exist — treat both as "use the default".
+_dry_powder_raw = os.environ.get("DRY_POWDER_SGD", "").strip()
+try:
+    TOTAL_DRY_POWDER_SGD = float(_dry_powder_raw) if _dry_powder_raw else 20000.0
+except ValueError:
+    TOTAL_DRY_POWDER_SGD = 20000.0
+
+# When true, always send the full status summary. When false (the intraday
+# price checks), stay silent unless there's a new signal to report — so you
+# only get pinged mid-session when something actually triggers.
+SEND_SUMMARY = os.environ.get("SEND_SUMMARY", "1").strip().lower() not in ("0", "false", "no", "")
 
 STATE_FILE = "monitor_state.json"
 
@@ -57,21 +70,29 @@ STATE_FILE = "monitor_state.json"
 #   ticker = the instrument we price (real ETF, real prices)
 #   buy    = what to actually buy (Singapore-tax-efficient note)
 # ─────────────────────────────────────────────────────────
+# "weight" = share of total dry powder for that sleeve (Core-weighted split).
+# URTH and IWDA are the SAME MSCI World sleeve — buy one, not both — so they
+# share the 35% and you never double-deploy.
 INDICES = {
-    "sp500":  {"name": "S&P 500",    "ticker": "SPY",    "buy": "CSPX (LSE) / SPY (US)",  "emoji": "🇺🇸"},
-    "nasdaq": {"name": "Nasdaq 100", "ticker": "QQQ",    "buy": "CNDX (LSE) / QQQ (US)",  "emoji": "💻"},
-    "msci":   {"name": "MSCI World", "ticker": "IWDA.L", "buy": "IWDA (LSE)",             "emoji": "🌍"},
+    "sp500":     {"name": "S&P 500",           "ticker": "SPY",    "buy": "SPY (US) / CSPX (LSE, 15% tax)", "emoji": "🇺🇸", "sleeve": "S&P 500",    "weight": 0.40},
+    "nasdaq":    {"name": "Nasdaq 100",        "ticker": "QQQ",    "buy": "QQQ (US) / CNDX (LSE)",          "emoji": "💻", "sleeve": "Nasdaq 100", "weight": 0.25},
+    "msci_urth": {"name": "MSCI World (URTH)", "ticker": "URTH",   "buy": "URTH (US, 30% tax)",             "emoji": "🌍", "sleeve": "MSCI World", "weight": 0.35},
+    "msci_iwda": {"name": "MSCI World (IWDA)", "ticker": "IWDA.L", "buy": "IWDA (LSE, 15% tax ✓)",          "emoji": "🌐", "sleeve": "MSCI World", "weight": 0.35},
 }
 
 # ─────────────────────────────────────────────────────────
 # TRANCHES — Mr. Loo's signal-based system
 # ─────────────────────────────────────────────────────────
+# Loo Cheng Chuan's "Method 1 Allocation Rule" (from his own slide): 5 tranches,
+# buying more the deeper it falls. The % is the share of that sleeve's dry
+# powder deployed at each level; they sum to 100%.
+#   -10% -> 10% | -15% -> 15% | -20% -> 20% | -25% -> 25% | -30% -> 30%
 TRANCHES = [
-    {"label": "Tranche 1", "drawdown": 10, "powder_pct": 15, "urgency": "Watch & Buy"},
-    {"label": "Tranche 2", "drawdown": 15, "powder_pct": 20, "urgency": "Buy"},
-    {"label": "Tranche 3", "drawdown": 20, "powder_pct": 20, "urgency": "Buy More"},
-    {"label": "Tranche 4", "drawdown": 30, "powder_pct": 25, "urgency": "STRONG BUY"},
-    {"label": "Tranche 5", "drawdown": 40, "powder_pct": 20, "urgency": "MAXIMUM BUY"},
+    {"label": "Tranche 1", "drawdown": 10, "powder_pct": 10, "urgency": "Buy (small)"},
+    {"label": "Tranche 2", "drawdown": 15, "powder_pct": 15, "urgency": "Buy"},
+    {"label": "Tranche 3", "drawdown": 20, "powder_pct": 20, "urgency": "Buy more"},
+    {"label": "Tranche 4", "drawdown": 25, "powder_pct": 25, "urgency": "Buy heavy"},
+    {"label": "Tranche 5", "drawdown": 30, "powder_pct": 30, "urgency": "Buy heaviest"},
 ]
 
 RESET_RECOVERY_PCT = 5.0   # when drawdown recovers above this, re-arm all tranches
@@ -145,14 +166,34 @@ def fetch_quote(ticker: str):
             if hist is None or hist.empty:
                 raise ValueError("empty history")
 
-            price     = float(hist["Close"].iloc[-1])
-            day_high  = float(hist["High"].iloc[-1])
-            day_low   = float(hist["Low"].iloc[-1])
-            last_dt   = hist.index[-1]
+            # Drop rows with no closing price. yfinance sometimes returns a
+            # trailing blank bar (common for LSE tickers like IWDA.L) which
+            # otherwise shows up as "$nan" in the alert.
+            hist = hist.dropna(subset=["Close"])
+            if hist.empty:
+                raise ValueError("no valid close prices")
+
+            price      = float(hist["Close"].iloc[-1])
+            last_dt    = hist.index[-1]
             price_date = last_dt.strftime("%d %b %Y")
 
-            ath       = float(hist["High"].max())
-            ath_date  = hist["High"].idxmax().strftime("%d %b %Y")
+            # Day high/low — fall back to the close if that cell is blank.
+            _dh = hist["High"].iloc[-1]
+            _dl = hist["Low"].iloc[-1]
+            day_high = float(_dh) if pd.notna(_dh) else price
+            day_low  = float(_dl) if pd.notna(_dl) else price
+
+            # Guard against bad data ticks. Yahoo occasionally reports a
+            # spurious intraday High far above the day's close (e.g. IWDA.L
+            # showed a fake $161.35 high on 27 Feb 2026, +20% over its close).
+            # A broad-market index ETF never gaps >6% between High and Close
+            # in one day, so drop such Highs when finding the all-time high.
+            # (Real all-time highs are set on calm up-days where High~Close,
+            # so this never discards a genuine peak.)
+            good = hist[hist["High"] <= hist["Close"] * 1.06]
+            ath_src   = good if not good.empty else hist
+            ath       = float(ath_src["High"].max())
+            ath_date  = ath_src["High"].idxmax().strftime("%d %b %Y")
 
             return {
                 "price": price, "day_high": day_high, "day_low": day_low,
@@ -229,15 +270,20 @@ def main() -> int:
             triggered = []
             signal_blocks.append(
                 f"RECOVERY — {index['emoji']} {index['name']}\n"
-                f"Drawdown back to -{drawdown:.1f}%. All 5 tranche signals reset."
+                f"Drawdown back to -{drawdown:.1f}%. All tranche signals reset."
             )
+
+        # This sleeve's dry powder (Core-weighted share of the total).
+        sleeve_powder = TOTAL_DRY_POWDER_SGD * index["weight"]
+        shared_note = ("\nNote: URTH & IWDA share this MSCI World sleeve — buy ONE."
+                       if index["sleeve"] == "MSCI World" else "")
 
         # Check tranches (fire only newly-crossed ones)
         for t in TRANCHES:
             if t["label"] in triggered:
                 continue
             if drawdown >= t["drawdown"]:
-                deploy = TOTAL_DRY_POWDER_SGD * (t["powder_pct"] / 100)
+                deploy = sleeve_powder * (t["powder_pct"] / 100)
                 recov  = ((1 / (1 - t["drawdown"] / 100)) - 1) * 100
                 trigger_price = peak * (1 - t["drawdown"] / 100)
                 signal_blocks.append(
@@ -253,9 +299,10 @@ def main() -> int:
                     f"Trigger level:         ${trigger_price:,.2f}\n"
                     f"Drawdown from ATH:     -{drawdown:.1f}%\n\n"
                     f"Deploy: {fmt_sgd(deploy)}\n"
-                    f"({t['powder_pct']}% of your {fmt_sgd(TOTAL_DRY_POWDER_SGD)} dry powder)\n\n"
+                    f"({t['powder_pct']}% of your {fmt_sgd(sleeve_powder)} {index['sleeve']} sleeve)\n\n"
                     f"Urgency: {t['urgency']}\n"
-                    f"Recovery needed to ATH: +{recov:.0f}%\n"
+                    f"Recovery needed to ATH: +{recov:.0f}%"
+                    f"{shared_note}\n"
                     f"{'='*35}\n"
                     f"Inspirational Sharing | Not Financial Advice"
                 )
@@ -271,11 +318,11 @@ def main() -> int:
         next_t = next((t for t in TRANCHES if t["label"] not in triggered), None)
         if next_t:
             nt_price  = peak * (1 - next_t["drawdown"] / 100)
-            nt_deploy = TOTAL_DRY_POWDER_SGD * (next_t["powder_pct"] / 100)
+            nt_deploy = sleeve_powder * (next_t["powder_pct"] / 100)
             next_line = (f"  Next: {next_t['label']} at ${nt_price:,.2f} "
                          f"(-{next_t['drawdown']}%) — deploy {fmt_sgd(nt_deploy)}")
         else:
-            next_line = "  All 5 tranches deployed"
+            next_line = "  All tranches deployed"
 
         summary_lines.append(
             f"{index['emoji']} {index['name']}  ${price:,.2f}  "
@@ -300,17 +347,27 @@ def main() -> int:
     state["last_run_utc"] = datetime.now(timezone.utc).isoformat()
     save_state(state)
 
-    summary_lines.append(f"Dry powder: {fmt_sgd(TOTAL_DRY_POWDER_SGD)}")
+    # Sleeve-split footer (URTH & IWDA collapse into one MSCI World sleeve)
+    sleeves = {}
+    for ix in INDICES.values():
+        sleeves[ix["sleeve"]] = TOTAL_DRY_POWDER_SGD * ix["weight"]
+    split = "  |  ".join(f"{name} {fmt_sgd(amt)}" for name, amt in sleeves.items())
+    summary_lines.append(f"Dry powder {fmt_sgd(TOTAL_DRY_POWDER_SGD)}  →  {split}")
+    summary_lines.append("(URTH & IWDA share the MSCI World sleeve — buy one)")
     if any_failure:
         summary_lines.append("⚠️ Some prices failed this run — check next run.")
     summary_lines.append("Not Financial Advice")
 
-    # Send prominent signal blocks first, then the summary
+    # Send prominent signal blocks first (always), then the summary.
+    # Intraday checks (SEND_SUMMARY off) stay silent unless a signal fired.
     ok = True
     for block in signal_blocks:
         ok = send_telegram(block) and ok
         time.sleep(1)
-    ok = send_telegram("\n".join(summary_lines)) and ok
+    if SEND_SUMMARY:
+        ok = send_telegram("\n".join(summary_lines)) and ok
+    elif not signal_blocks:
+        print("  [intraday check — no new signals, nothing sent]")
 
     # Only ping the dead-man's-switch if the run genuinely succeeded
     if ok and not any_failure:
