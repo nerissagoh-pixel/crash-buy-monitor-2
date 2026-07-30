@@ -1,0 +1,26 @@
+{
+  "sp500": {
+    "triggered": [],
+    "peak": 758.4461093852723,
+    "peak_date": "02 Jun 2026",
+    "last_price": 729.4600219726562,
+    "last_drawdown": 3.8217728397485655
+  },
+  "nasdaq": {
+    "triggered": [
+      "Tranche 1"
+    ],
+    "peak": 747.828194840854,
+    "peak_date": "03 Jun 2026",
+    "last_price": 661.72998046875,
+    "last_drawdown": 11.513100865423601
+  },
+  "msci": {
+    "triggered": [],
+    "peak": 161.35000610351562,
+    "peak_date": "27 Feb 2026",
+    "last_price": NaN,
+    "last_drawdown": NaN
+  },
+  "last_run_utc": "2026-07-30T02:08:37.525144+00:00"
+}
