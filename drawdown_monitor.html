@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Global Equity Drawdown Monitor · Inspirational Sharing</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --navy:      #0f1b2d;
+  --navy2:     #162235;
+  --navy3:     #1e2d42;
+  --border:    #243348;
+  --gold:      #c9a84c;
+  --gold-dim:  #7a6230;
+  --text-hi:   #f0f4f8;
+  --text-mid:  #8fa3be;
+  --text-lo:   #4a6080;
+  --red:       #ef4444;
+  --red-dim:   #3d1010;
+  --orange:    #f97316;
+  --orange-dim:#3d2010;
+  --green:     #22c55e;
+  --green-dim: #0f2d1a;
+  --teal:      #38bdf8;
+}
+
+html { font-size: 15px; }
+body {
+  background: var(--navy);
+  color: var(--text-hi);
+  font-family: 'Inter', sans-serif;
+  min-height: 100vh;
+  padding: 0 0 60px;
+}
+
+/* ── Header ── */
+header {
+  background: var(--navy2);
+  border-bottom: 2px solid var(--gold-dim);
+  padding: 20px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand-box {
+  width: 38px; height: 38px;
+  border: 1.5px solid var(--gold);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Cinzel', serif; font-size: 12px; color: var(--gold);
+}
+.brand-name { font-family: 'Cinzel', serif; font-size: 13px; color: var(--gold); letter-spacing: 0.08em; }
+.brand-sub  { font-size: 10px; color: var(--text-lo); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 2px; }
+.header-right { text-align: right; font-size: 11px; color: var(--text-mid); line-height: 1.8; }
+.header-right strong { color: var(--text-hi); }
+
+/* ── Container ── */
+.container { max-width: 860px; margin: 0 auto; padding: 32px 20px 0; }
+
+/* ── Title block ── */
+.title-block { text-align: center; margin-bottom: 28px; }
+.title-block h1 {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(20px, 4vw, 32px);
+  font-weight: 700;
+  color: var(--text-hi);
+  letter-spacing: 0.04em;
+  margin-bottom: 8px;
+}
+.subtitle { font-size: 12px; color: var(--text-mid); letter-spacing: 0.06em; line-height: 1.8; }
+.last-updated { font-size: 11px; color: var(--text-lo); margin-top: 4px; }
+
+/* ── Table ── */
+.table-wrap { overflow-x: auto; margin-bottom: 24px; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 600px;
+}
+thead tr {
+  background: var(--navy3);
+  border-bottom: 2px solid var(--gold-dim);
+}
+thead th {
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold);
+  padding: 14px 20px;
+  text-align: left;
+  white-space: nowrap;
+}
+thead th:last-child { text-align: center; }
+
+tbody tr {
+  border-bottom: 1px solid var(--border);
+  transition: background 0.15s;
+}
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: var(--navy2); }
+
+td { padding: 20px; vertical-align: middle; }
+
+/* Index name */
+.idx-name {
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--text-hi);
+  margin-bottom: 3px;
+}
+.idx-etf {
+  font-size: 10px;
+  color: var(--text-lo);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* Ticker */
+.ticker {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--teal);
+  letter-spacing: 0.06em;
+  background: rgba(56,189,248,0.08);
+  padding: 4px 10px;
+  border-radius: 3px;
+  display: inline-block;
+}
+
+/* Price */
+.price-main {
+  font-family: 'Cinzel', serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-hi);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.price-range {
+  font-size: 10px;
+  color: var(--text-lo);
+  letter-spacing: 0.04em;
+}
+
+/* ATH */
+.ath-price {
+  font-family: 'Cinzel', serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-mid);
+  margin-bottom: 3px;
+}
+.ath-date { font-size: 10px; color: var(--text-lo); }
+
+/* Drawdown */
+.drawdown-cell { text-align: center; }
+.drawdown-pct {
+  font-family: 'Cinzel', serif;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.drawdown-bar-track {
+  height: 5px;
+  background: var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 6px;
+  width: 100px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.drawdown-bar-fill { height: 100%; border-radius: 3px; transition: width 0.8s ease; }
+.drawdown-status {
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 10px;
+  display: inline-block;
+  font-weight: 600;
+}
+
+/* Colour tiers */
+.tier-safe    { color: var(--green); }
+.tier-watch   { color: var(--orange); }
+.tier-buy     { color: var(--red); }
+.tier-critical{ color: #ff3030; }
+
+.status-safe     { background: var(--green-dim);   color: var(--green);  }
+.status-watch    { background: var(--orange-dim);  color: var(--orange); }
+.status-buy      { background: var(--red-dim);     color: var(--red);    }
+.status-critical { background: #2d0808;            color: #ff5050;       }
+
+.bar-safe     { background: var(--green); }
+.bar-watch    { background: var(--orange); }
+.bar-buy      { background: var(--red); }
+.bar-critical { background: #ff3030; }
+
+/* ── Tranche guide ── */
+.tranche-section { margin-bottom: 24px; }
+.section-label {
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gold-dim);
+  margin-bottom: 12px;
+  display: flex; align-items: center; gap: 10px;
+}
+.section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+.tranche-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+}
+@media(max-width:600px) { .tranche-grid { grid-template-columns: repeat(3,1fr); } }
+
+.tranche-card {
+  background: var(--navy2);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 12px;
+  text-align: center;
+}
+.tc-label { font-size: 9px; color: var(--text-lo); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 4px; }
+.tc-dd    { font-family: 'Cinzel', serif; font-size: 18px; font-weight: 700; margin-bottom: 2px; }
+.tc-pct   { font-size: 10px; color: var(--text-mid); margin-bottom: 4px; }
+.tc-action{ font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600; }
+
+/* ── Next triggers ── */
+.triggers-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 24px; }
+@media(max-width:580px) { .triggers-grid { grid-template-columns: 1fr; } }
+
+.trigger-card {
+  background: var(--navy2);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 16px;
+}
+.trigger-index { font-size: 10px; color: var(--text-lo); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 6px; }
+.trigger-tranche { font-family: 'Cinzel', serif; font-size: 13px; color: var(--gold); margin-bottom: 4px; }
+.trigger-price { font-family: 'Cinzel', serif; font-size: 18px; font-weight: 700; color: var(--text-hi); margin-bottom: 2px; }
+.trigger-sub { font-size: 10px; color: var(--text-lo); }
+.trigger-now { border-color: var(--red); background: var(--red-dim); }
+.trigger-now .trigger-tranche { color: var(--red); }
+
+/* ── Footer ── */
+footer {
+  text-align: center;
+  padding: 24px;
+  font-size: 10px;
+  color: var(--text-lo);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border-top: 1px solid var(--border);
+  margin-top: 32px;
+}
+
+/* ── Refresh button ── */
+.refresh-btn {
+  background: var(--gold-dim);
+  border: 1px solid var(--gold);
+  color: var(--gold);
+  font-family: 'Cinzel', serif;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 8px 18px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 8px;
+}
+.refresh-btn:hover { background: var(--gold); color: var(--navy); }
+
+/* Loading */
+.loading { opacity: 0.4; font-style: italic; font-size: 13px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="brand-box">IS</div>
+    <div>
+      <div class="brand-name">Inspirational Sharing</div>
+      <div class="brand-sub">Drawdown Monitor</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div>Educational tracker · Distance from all-time highs</div>
+    <div>Synced with your Telegram monitor · <strong>via GitHub</strong></div>
+    <div id="lastViewed" class="loading">Loading...</div>
+  </div>
+</header>
+
+<div class="container">
+
+  <div class="title-block">
+    <h1>GLOBAL EQUITY DRAWDOWN MONITOR</h1>
+    <div class="subtitle">
+      Tracking SPY · QQQ · URTH · IWDA distance from all-time highs<br>
+      Signal thresholds based on Mr. Loo's Crash Buying System (1M65)
+    </div>
+    <button class="refresh-btn" onclick="loadData()">↺ Refresh Prices</button>
+  </div>
+
+  <!-- Main Table -->
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Index</th>
+          <th>Ticker</th>
+          <th>Current Price (USD)</th>
+          <th>All-Time High (USD)</th>
+          <th style="text-align:center;">Drawdown %</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody">
+        <tr><td colspan="5" style="text-align:center; padding:40px; color:var(--text-lo); font-style:italic;">Loading prices from Yahoo Finance...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Next Triggers -->
+  <div class="section-label">Next Buy Triggers</div>
+  <div class="triggers-grid" id="triggersGrid" style="grid-template-columns: repeat(4,1fr);">
+    <div class="trigger-card loading" style="text-align:center; padding:20px;">Loading...</div>
+    <div class="trigger-card loading" style="text-align:center; padding:20px;">Loading...</div>
+    <div class="trigger-card loading" style="text-align:center; padding:20px;">Loading...</div>
+    <div class="trigger-card loading" style="text-align:center; padding:20px;">Loading...</div>
+  </div>
+
+  <!-- Tranche Guide -->
+  <div class="section-label">Signal Thresholds — Mr. Loo's Method 1 Allocation Rule</div>
+  <div class="tranche-grid">
+    <div class="tranche-card">
+      <div class="tc-label">Tranche 1</div>
+      <div class="tc-dd tier-watch">−10%</div>
+      <div class="tc-pct">10% dry powder</div>
+      <div class="tc-action" style="color:var(--orange);">Buy (small)</div>
+    </div>
+    <div class="tranche-card">
+      <div class="tc-label">Tranche 2</div>
+      <div class="tc-dd tier-watch">−15%</div>
+      <div class="tc-pct">15% dry powder</div>
+      <div class="tc-action" style="color:var(--orange);">Buy</div>
+    </div>
+    <div class="tranche-card">
+      <div class="tc-label">Tranche 3</div>
+      <div class="tc-dd tier-buy">−20%</div>
+      <div class="tc-pct">20% dry powder</div>
+      <div class="tc-action" style="color:var(--red);">Buy More</div>
+    </div>
+    <div class="tranche-card">
+      <div class="tc-label">Tranche 4</div>
+      <div class="tc-dd tier-buy">−25%</div>
+      <div class="tc-pct">25% dry powder</div>
+      <div class="tc-action" style="color:var(--red);">Buy Heavy</div>
+    </div>
+    <div class="tranche-card">
+      <div class="tc-label">Tranche 5</div>
+      <div class="tc-dd tier-critical">−30%</div>
+      <div class="tc-pct">30% dry powder</div>
+      <div class="tc-action" style="color:#ff5050;">Buy Heaviest</div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  Inspirational Sharing · Global Equity Drawdown Monitor · Educational Purposes Only · Not Financial Advice
+</footer>
+
+<script>
+// ── Data source: your monitor bot's committed state on GitHub ──────────────
+// The Python bot (crash-buy-monitor-2) fetches prices, applies the bad-tick
+// filter, computes each ATH + drawdown, and commits monitor_state.json several
+// times each weekday. This dashboard reads THAT file straight from GitHub's raw
+// server — which is reliable and CORS-friendly (no flaky price proxies) — so the
+// website and your Telegram alerts always show the exact same numbers.
+const STATE_URL = 'https://raw.githubusercontent.com/nerissagoh-pixel/crash-buy-monitor-2/main/monitor_state.json';
+
+const INDICES = [
+  { name:'S&P 500',             ticker:'SPY',    etf:'SPY (US) / CSPX (London)', group:'',           stateKey:'sp500'     },
+  { name:'Nasdaq 100',          ticker:'QQQ',    etf:'QQQ (US) / CNDX (London)', group:'',           stateKey:'nasdaq'    },
+  { name:'MSCI World (US)',     ticker:'URTH',   etf:'URTH — NYSE · 30% tax',    group:'MSCI World', stateKey:'msci_urth' },
+  { name:'MSCI World (London)', ticker:'IWDA.L', etf:'IWDA — LSE · 15% tax ✓',   group:'MSCI World', stateKey:'msci_iwda' },
+];
+
+// Mr. Loo's Method 1 Allocation Rule: buy at -10/-15/-20/-25/-30%
+const TRANCHE_LEVELS = [10, 15, 20, 25, 30];
+
+function getTierClass(dd) {
+  if (dd < 10)  return { color: 'tier-safe',     status: 'status-safe',     bar: 'bar-safe',     label: 'Healthy' };
+  if (dd < 15)  return { color: 'tier-watch',    status: 'status-watch',    bar: 'bar-watch',    label: 'Tranche 1' };
+  if (dd < 20)  return { color: 'tier-watch',    status: 'status-watch',    bar: 'bar-watch',    label: 'Tranche 2' };
+  if (dd < 25)  return { color: 'tier-buy',      status: 'status-buy',      bar: 'bar-buy',      label: 'Tranche 3' };
+  if (dd < 30)  return { color: 'tier-buy',      status: 'status-buy',      bar: 'bar-buy',      label: 'Tranche 4' };
+  return              { color: 'tier-critical',  status: 'status-critical', bar: 'bar-critical', label: 'Tranche 5' };
+}
+
+function getNextTranche(dd) {
+  for (const lvl of TRANCHE_LEVELS) {
+    if (dd < lvl) return lvl;
+  }
+  return null; // all triggered
+}
+
+function fmt(n, decimals = 2) {
+  return '$' + Number(n).toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+}
+
+async function loadData() {
+  const lv = document.getElementById('lastViewed');
+  lv.textContent = 'Refreshing...';
+  lv.classList.add('loading');
+
+  let state = null;
+  try {
+    const r = await fetch(STATE_URL + '?t=' + Date.now());   // cache-bust
+    if (r.ok) state = await r.json();
+  } catch (e) { console.error('State fetch failed', e); }
+
+  const tbody = document.getElementById('tableBody');
+  const triggersGrid = document.getElementById('triggersGrid');
+  tbody.innerHTML = '';
+  triggersGrid.innerHTML = '';
+  triggersGrid.style.gridTemplateColumns = 'repeat(4,1fr)';
+
+  if (!state) {
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--text-lo);padding:36px;">
+      Could not reach the monitor data. Please refresh in a moment.</td></tr>`;
+    lv.textContent = 'Data unavailable'; lv.classList.remove('loading');
+    return;
+  }
+
+  INDICES.forEach((idx, i) => {
+    const s = state[idx.stateKey];
+
+    // Group header for the MSCI World pair
+    if (idx.group && i > 0 && !INDICES[i-1].group) {
+      tbody.innerHTML += `
+        <tr style="background:var(--navy3);">
+          <td colspan="5" style="padding:8px 20px; font-family:'Cinzel',serif; font-size:9px; color:var(--gold-dim); letter-spacing:0.16em; text-transform:uppercase;">
+            MSCI World — Both shown for comparison (same index, different domicile &amp; tax)
+          </td>
+        </tr>`;
+    }
+
+    // No data for this ETF yet (e.g. bot not yet upgraded to 4 ETFs)
+    if (!s || !s.peak) {
+      tbody.innerHTML += `<tr>
+        <td><div class="idx-name">${idx.name}</div><div class="idx-etf">${idx.etf}</div></td>
+        <td><span class="ticker">${idx.ticker}</span></td>
+        <td colspan="3" style="color:var(--text-lo); font-style:italic;">Awaiting next monitor run…</td>
+      </tr>`;
+      triggersGrid.innerHTML += `<div class="trigger-card"><div class="trigger-index">${idx.name}</div>
+        <div class="trigger-sub" style="margin-top:8px;">Awaiting data…</div></div>`;
+      return;
+    }
+
+    const price    = s.last_price;
+    const ath      = s.peak;
+    const athDate  = s.peak_date || '';
+    const dd       = (typeof s.last_drawdown === 'number') ? s.last_drawdown : ((ath - price) / ath) * 100;
+    const tier     = getTierClass(dd);
+    const barWidth = Math.min((dd / 30) * 100, 100);
+    const nextT    = getNextTranche(dd);
+    const nextPrice = nextT ? ath * (1 - nextT / 100) : null;
+
+    tbody.innerHTML += `
+      <tr>
+        <td>
+          <div class="idx-name">${idx.name}</div>
+          <div class="idx-etf">${idx.etf}</div>
+        </td>
+        <td><span class="ticker">${idx.ticker}</span></td>
+        <td>
+          <div class="price-main">${fmt(price)}</div>
+          <div class="price-range">last close</div>
+        </td>
+        <td>
+          <div class="ath-price">${fmt(ath)}</div>
+          <div class="ath-date">${athDate}</div>
+        </td>
+        <td class="drawdown-cell">
+          <div class="drawdown-pct ${tier.color}">${dd > 0 ? '−' : ''}${dd.toFixed(2)}%</div>
+          <div class="drawdown-bar-track">
+            <div class="drawdown-bar-fill ${tier.bar}" style="width:${barWidth}%;"></div>
+          </div>
+          <span class="drawdown-status ${tier.status}">${tier.label}</span>
+        </td>
+      </tr>`;
+
+    const isTriggered = dd >= 10;
+    const taxNote = idx.group ? `<div class="trigger-sub" style="margin-top:4px; color:${idx.ticker==='IWDA.L' ? 'var(--green)' : 'var(--orange)'};">${idx.ticker==='IWDA.L' ? '✓ Lower 15% tax' : '⚠ Higher 30% tax'}</div>` : '';
+    triggersGrid.innerHTML += `
+      <div class="trigger-card ${isTriggered ? 'trigger-now' : ''}">
+        <div class="trigger-index">${idx.name}</div>
+        <div style="font-size:9px; color:var(--text-lo); margin-bottom:6px;">${idx.etf}</div>
+        ${nextT ? `
+          <div class="trigger-tranche">Tranche ${TRANCHE_LEVELS.indexOf(nextT)+1} — −${nextT}%</div>
+          <div class="trigger-price">${fmt(nextPrice)}</div>
+          <div class="trigger-sub">${(price - nextPrice) > 0
+            ? `$${(price - nextPrice).toFixed(2)} above trigger`
+            : `TRIGGERED — buy now`}
+          </div>
+        ` : `
+          <div class="trigger-tranche" style="color:var(--green);">All 5 Tranches</div>
+          <div class="trigger-price" style="font-size:14px; color:var(--green);">Fully Deployed</div>
+          <div class="trigger-sub">Maximum crash buying done</div>
+        `}
+        ${taxNote}
+      </div>`;
+  });
+
+  // Timestamp = when the bot last ran and committed the data
+  let stamp = 'unknown';
+  if (state.last_run_utc) {
+    stamp = new Date(state.last_run_utc).toLocaleString('en-GB', {
+      timeZone: 'Asia/Singapore',
+      day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false
+    });
+  }
+  lv.textContent = `Monitor data as of: ${stamp} SGT`;
+  lv.classList.remove('loading');
+}
+
+// Load on page open
+loadData();
+// Auto-refresh every 15 minutes
+setInterval(loadData, 15 * 60 * 1000);
+</script>
+</body>
+</html>

@@ -1,0 +1,1474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crash Buying Simulator · Inspirational Sharing</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --ink:#0e0c09; --surface:#141210; --card:#1c1a16; --card2:#242018; --border:#2e2a22;
+  --gold:#b8972a; --gold-lt:#d4b24a; --gold-dim:#7a6218;
+  --crimson:#8b1a1a; --crimson-lt:#c0302e;
+  --teal:#4a9eaa; --teal-dim:#2d6b74;
+  --parchment:#faf8f3; --text-hi:#f0ead8; --text-mid:#a89f88; --text-lo:#5a5344;
+  --green:#4caf7a; --green-dim:#1f3d2d; --red:#e05252; --red-dim:#3d1a1a; --orange:#d4883a;
+}
+html { font-size: 15px; }
+body { background:var(--ink); color:var(--text-hi); font-family:'Inter',sans-serif; min-height:100vh; line-height:1.6; }
+
+/* Header */
+header { background:var(--surface); border-bottom:1px solid var(--border); padding:16px 24px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:100; }
+.brand { display:flex; align-items:center; gap:12px; }
+.brand-ornament { width:36px; height:36px; border:1.5px solid var(--gold); border-radius:2px; display:flex; align-items:center; justify-content:center; font-family:'Cinzel',serif; font-size:13px; color:var(--gold); }
+.brand-text { font-family:'Cinzel',serif; font-size:13px; color:var(--gold); letter-spacing:0.08em; line-height:1.3; }
+.brand-sub { font-family:'Inter',sans-serif; font-size:10px; color:var(--text-lo); letter-spacing:0.12em; text-transform:uppercase; margin-top:1px; }
+.header-tag { font-size:10px; color:var(--gold-dim); letter-spacing:0.1em; text-transform:uppercase; border:1px solid var(--gold-dim); padding:3px 8px; border-radius:2px; }
+
+/* Layout */
+.container { max-width:1160px; margin:0 auto; padding:0 20px; }
+.page { padding:28px 0 64px; }
+
+/* Hero */
+.hero { text-align:center; padding:32px 0 28px; border-bottom:1px solid var(--border); margin-bottom:28px; }
+.hero-eyebrow { font-size:10px; letter-spacing:0.2em; text-transform:uppercase; color:var(--teal); margin-bottom:12px; }
+.hero-title { font-family:'Cinzel',serif; font-size:clamp(20px,3.5vw,34px); font-weight:700; color:var(--text-hi); line-height:1.2; margin-bottom:8px; }
+.hero-title span { color:var(--gold); }
+.hero-sub { font-family:'Cormorant Garamond',serif; font-size:17px; color:var(--text-mid); font-style:italic; max-width:520px; margin:0 auto; }
+
+/* Scenario Picker */
+.scenario-section { margin-bottom:24px; }
+.section-label { font-family:'Cinzel',serif; font-size:10px; letter-spacing:0.18em; text-transform:uppercase; color:var(--gold-dim); margin-bottom:12px; display:flex; align-items:center; gap:10px; }
+.section-label::after { content:''; flex:1; height:1px; background:var(--border); }
+.scenario-tabs { display:flex; gap:8px; margin-bottom:10px; flex-wrap:wrap; }
+.stab { background:var(--card); border:1px solid var(--border); border-radius:3px; padding:7px 14px; font-size:11px; font-family:'Cinzel',serif; letter-spacing:0.08em; color:var(--text-mid); cursor:pointer; transition:all 0.2s; white-space:nowrap; }
+.stab:hover { border-color:var(--gold-dim); color:var(--text-hi); }
+.stab.active { background:var(--gold-dim); border-color:var(--gold); color:var(--gold-lt); }
+.scenario-cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:10px; }
+.sc-card { background:var(--card2); border:1px solid var(--border); border-radius:3px; padding:12px 14px; cursor:pointer; transition:all 0.2s; position:relative; }
+.sc-card:hover { border-color:var(--gold-dim); transform:translateY(-1px); }
+.sc-card.selected { border-color:var(--gold); background:rgba(184,151,42,0.08); }
+.sc-name { font-family:'Cinzel',serif; font-size:11px; color:var(--text-hi); letter-spacing:0.06em; margin-bottom:4px; }
+.sc-index { font-size:10px; color:var(--teal); letter-spacing:0.08em; text-transform:uppercase; margin-bottom:8px; }
+.sc-stats { display:flex; gap:10px; }
+.sc-stat { font-size:10px; color:var(--text-lo); }
+.sc-stat strong { color:var(--text-mid); display:block; font-size:13px; font-family:'Cinzel',serif; }
+.sc-badge { position:absolute; top:8px; right:8px; font-size:8px; letter-spacing:0.1em; text-transform:uppercase; padding:2px 6px; border-radius:10px; }
+.badge-red { background:var(--red-dim); color:var(--red); }
+.badge-orange { background:#3d2800; color:var(--orange); }
+.badge-teal { background:rgba(74,158,170,0.15); color:var(--teal); }
+.badge-green { background:var(--green-dim); color:var(--green); }
+
+/* Main grid */
+.main-grid { display:grid; grid-template-columns:300px 1fr; gap:16px; align-items:start; margin-bottom:20px; }
+@media(max-width:800px) { .main-grid { grid-template-columns:1fr; } }
+
+/* Card */
+.card { background:var(--card); border:1px solid var(--border); border-radius:4px; padding:18px; }
+.card-gold { border-color:var(--gold-dim); }
+.card-title { font-family:'Cinzel',serif; font-size:10px; letter-spacing:0.16em; text-transform:uppercase; color:var(--gold); margin-bottom:14px; padding-bottom:8px; border-bottom:1px solid var(--border); }
+
+/* Inputs */
+label { font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:var(--text-mid); display:block; margin-bottom:4px; }
+input[type=range] { width:100%; accent-color:var(--gold); cursor:pointer; height:4px; }
+.field { margin-bottom:14px; }
+.field:last-child { margin-bottom:0; }
+.val-display { font-family:'Cinzel',serif; font-size:20px; font-weight:600; color:var(--text-hi); margin-bottom:3px; }
+.val-display span { font-size:12px; color:var(--gold); margin-left:3px; }
+.tip { font-size:10px; color:var(--text-lo); margin-top:3px; font-style:italic; }
+
+/* Mode toggle */
+.mode-group { display:flex; gap:0; border:1px solid var(--border); border-radius:3px; overflow:hidden; margin-bottom:12px; }
+.mode-btn { flex:1; padding:8px 6px; background:transparent; border:none; cursor:pointer; font-family:'Inter',sans-serif; font-size:10px; font-weight:500; color:var(--text-mid); letter-spacing:0.05em; transition:all 0.2s; }
+.mode-btn.active { background:var(--gold-dim); color:var(--gold-lt); }
+.mode-btn:hover:not(.active) { background:var(--card2); color:var(--text-hi); }
+
+/* CPF toggle */
+.cpf-toggle { display:flex; align-items:center; justify-content:space-between; padding:10px 12px; background:var(--card2); border:1px solid var(--border); border-radius:3px; margin-bottom:14px; cursor:pointer; transition:border-color 0.2s; }
+.cpf-toggle:hover { border-color:var(--gold-dim); }
+.cpf-toggle.on { border-color:var(--teal-dim); background:rgba(74,158,170,0.07); }
+.cpf-label { font-size:11px; color:var(--text-mid); letter-spacing:0.05em; }
+.cpf-label strong { color:var(--teal); display:block; font-size:10px; text-transform:uppercase; letter-spacing:0.1em; margin-bottom:1px; }
+.cpf-switch { width:32px; height:18px; background:var(--border); border-radius:9px; position:relative; transition:background 0.2s; }
+.cpf-switch::after { content:''; position:absolute; top:3px; left:3px; width:12px; height:12px; background:var(--text-lo); border-radius:50%; transition:all 0.2s; }
+.cpf-toggle.on .cpf-switch { background:var(--teal-dim); }
+.cpf-toggle.on .cpf-switch::after { left:17px; background:var(--teal); }
+
+/* Compare toggle */
+.compare-row { display:flex; align-items:center; gap:10px; margin-bottom:14px; padding:10px 12px; background:var(--card2); border:1px solid var(--border); border-radius:3px; cursor:pointer; transition:border-color 0.2s; }
+.compare-row:hover { border-color:var(--crimson); }
+.compare-row.on { border-color:var(--crimson-lt); background:rgba(192,48,46,0.07); }
+.compare-icon { font-size:16px; }
+.compare-label { flex:1; font-size:11px; color:var(--text-mid); }
+.compare-label strong { color:var(--crimson-lt); display:block; font-size:10px; text-transform:uppercase; letter-spacing:0.1em; }
+
+/* Tranche bars */
+.tranche-grid { display:flex; flex-direction:column; gap:7px; }
+.tranche-row { display:grid; grid-template-columns:68px 1fr 48px; align-items:center; gap:8px; }
+.tranche-label { font-size:10px; color:var(--text-mid); letter-spacing:0.04em; white-space:nowrap; }
+.tranche-bar-track { height:7px; background:var(--card2); border-radius:2px; overflow:hidden; }
+.tranche-bar-fill { height:100%; border-radius:2px; transition:width 0.5s cubic-bezier(.4,0,.2,1); }
+.tranche-pct { font-size:10px; color:var(--text-mid); text-align:right; }
+.tranche-row.triggered .tranche-label { color:var(--text-hi); }
+.tranche-row.triggered .tranche-pct { color:var(--gold-lt); font-weight:600; }
+
+/* Day pointer */
+.dp-track { height:26px; background:var(--card2); border-radius:3px; position:relative; overflow:hidden; margin-bottom:5px; }
+.dp-fill { height:100%; transition:width 0.4s cubic-bezier(.4,0,.2,1); border-radius:3px 0 0 3px; }
+.dp-pointer { position:absolute; top:0; height:100%; width:2px; background:var(--parchment); transition:left 0.4s cubic-bezier(.4,0,.2,1); box-shadow:0 0 6px rgba(255,255,255,0.4); }
+.dp-labels { display:flex; justify-content:space-between; margin-bottom:14px; }
+.dp-labels span { font-size:9px; color:var(--text-lo); }
+
+/* Status pill */
+.status-pill { display:inline-flex; align-items:center; gap:6px; padding:4px 11px; border-radius:12px; font-size:10px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; margin-bottom:10px; }
+.pill-bull { background:var(--green-dim); color:var(--green); }
+.pill-correction { background:#3d3000; color:var(--orange); }
+.pill-bear { background:var(--red-dim); color:var(--red); }
+.pill-crash { background:#3d0808; color:#ff7070; }
+.pill-recovery { background:rgba(74,158,170,0.15); color:var(--teal); }
+.pill-dot { width:5px; height:5px; border-radius:50%; background:currentColor; }
+
+/* Chart */
+.chart-wrap { position:relative; height:190px; margin-bottom:8px; }
+canvas { width:100% !important; }
+
+/* Stats */
+.stats-row { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:16px; }
+.stat-box { background:var(--card2); border:1px solid var(--border); border-radius:3px; padding:10px 12px; }
+.stat-num { font-family:'Cinzel',serif; font-size:18px; font-weight:600; line-height:1; margin-bottom:2px; }
+.stat-lbl { font-size:9px; letter-spacing:0.1em; text-transform:uppercase; color:var(--text-lo); }
+
+/* Insight */
+.insight { background:var(--card2); border-left:3px solid var(--gold); border-radius:0 3px 3px 0; padding:12px 14px; margin-bottom:12px; }
+.insight:last-child { margin-bottom:0; }
+.insight-title { font-family:'Cinzel',serif; font-size:9px; color:var(--gold); letter-spacing:0.12em; text-transform:uppercase; margin-bottom:5px; }
+.insight-body { font-family:'Cormorant Garamond',serif; font-size:14px; color:var(--text-mid); line-height:1.5; }
+
+/* Buttons */
+.btn-primary { width:100%; padding:12px; background:var(--gold-dim); border:1px solid var(--gold); color:var(--gold-lt); font-family:'Cinzel',serif; font-size:11px; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; cursor:pointer; border-radius:3px; transition:all 0.2s; margin-bottom:7px; }
+.btn-primary:hover { background:var(--gold); color:var(--ink); }
+.btn-primary:disabled { opacity:0.3; cursor:not-allowed; }
+.btn-step { background:var(--card2); border-color:var(--teal); color:var(--teal); }
+.btn-step:hover { background:var(--teal-dim); color:var(--text-hi); }
+.btn-secondary { width:100%; padding:9px; background:transparent; border:1px solid var(--border); color:var(--text-mid); font-family:'Inter',sans-serif; font-size:10px; letter-spacing:0.08em; text-transform:uppercase; cursor:pointer; border-radius:3px; transition:all 0.2s; }
+.btn-secondary:hover { border-color:var(--text-mid); color:var(--text-hi); }
+
+/* Log */
+.log-wrap { max-height:180px; overflow-y:auto; }
+.log-entry { display:grid; grid-template-columns:40px 1fr auto; gap:6px; align-items:center; padding:6px 0; border-bottom:1px solid var(--border); font-size:10px; }
+.log-entry:last-child { border-bottom:none; }
+.log-day { color:var(--text-lo); }
+.log-type { font-weight:600; letter-spacing:0.04em; }
+.log-type.buy { color:var(--green); }
+.log-type.info { color:var(--teal); }
+.log-type.cpf { color:var(--teal); }
+.log-type.warn { color:var(--orange); }
+.log-amt { color:var(--text-hi); font-family:'Cinzel',serif; font-size:11px; text-align:right; }
+.log-empty { color:var(--text-lo); font-size:11px; padding:16px 0; text-align:center; font-style:italic; }
+
+/* Compare panel */
+.compare-panel { display:none; margin-top:14px; }
+.compare-panel.visible { display:block; }
+.compare-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.compare-col { background:var(--card2); border:1px solid var(--border); border-radius:3px; padding:12px; }
+.compare-col-title { font-size:10px; font-family:'Cinzel',serif; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:10px; padding-bottom:7px; border-bottom:1px solid var(--border); }
+.col-signal { border-left:3px solid var(--gold); color:var(--gold); }
+.col-spread { border-left:3px solid var(--crimson-lt); color:var(--crimson-lt); }
+
+/* CPF overlay */
+.cpf-panel { display:none; margin-top:12px; padding:12px; background:rgba(74,158,170,0.07); border:1px solid var(--teal-dim); border-radius:3px; }
+.cpf-panel.visible { display:block; }
+.cpf-metric { display:flex; justify-content:space-between; align-items:baseline; padding:5px 0; border-bottom:1px solid rgba(74,158,170,0.15); font-size:11px; }
+.cpf-metric:last-child { border-bottom:none; }
+.cpf-metric-lbl { color:var(--text-mid); }
+.cpf-metric-val { font-family:'Cinzel',serif; font-size:14px; color:var(--teal); }
+
+/* Outcome */
+.metric-block { text-align:center; padding:14px 0; }
+.metric-num { font-family:'Cinzel',serif; font-size:clamp(26px,4vw,44px); font-weight:700; line-height:1; margin-bottom:3px; }
+.metric-label { font-size:9px; letter-spacing:0.14em; text-transform:uppercase; color:var(--text-mid); }
+
+/* History row */
+.history-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:20px; }
+@media(max-width:700px) { .history-grid { grid-template-columns:1fr; } }
+.hist-card { background:var(--card); border:1px solid var(--border); border-radius:4px; padding:14px; }
+.hist-dd { font-family:'Cinzel',serif; font-size:26px; font-weight:700; line-height:1; margin-bottom:3px; }
+.hist-sub { font-size:9px; letter-spacing:0.12em; text-transform:uppercase; color:var(--text-lo); margin-bottom:8px; }
+.hist-body { font-size:11px; color:var(--text-mid); line-height:1.6; }
+
+.divider { border:none; border-top:1px solid var(--border); margin:20px 0; }
+.grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; }
+@media(max-width:700px) { .grid-3 { grid-template-columns:1fr; } }
+::-webkit-scrollbar { width:4px; }
+::-webkit-scrollbar-track { background:var(--card2); }
+::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
+footer { text-align:center; padding:22px; border-top:1px solid var(--border); font-size:9px; color:var(--text-lo); letter-spacing:0.12em; text-transform:uppercase; }
+
+/* Price input boxes */
+.price-input-box { background:var(--card2); border:1px solid var(--border); border-radius:3px; padding:14px; transition:border-color 0.2s; }
+.price-input-box:focus-within { border-color:var(--gold); }
+.pi-index { font-family:'Cinzel',serif; font-size:11px; color:var(--text-hi); letter-spacing:0.06em; margin-bottom:8px; }
+.pi-ticker { font-size:9px; color:var(--teal); letter-spacing:0.1em; text-transform:uppercase; margin-left:6px; }
+.pi-input-row { display:flex; align-items:center; gap:4px; margin-bottom:6px; }
+.pi-dollar { font-family:'Cinzel',serif; font-size:18px; color:var(--gold); }
+.pi-input { background:transparent; border:none; border-bottom:1px solid var(--border); color:var(--text-hi); font-family:'Cinzel',serif; font-size:22px; font-weight:600; width:100%; outline:none; padding:2px 0; transition:border-color 0.2s; }
+.pi-input:focus { border-bottom-color:var(--gold); }
+.pi-etf { font-size:9px; color:var(--text-lo); letter-spacing:0.06em; }
+
+/* Price table */
+.price-table { width:100%; border-collapse:collapse; font-size:12px; min-width:620px; }
+.price-table th { font-family:'Cinzel',serif; font-size:9px; letter-spacing:0.12em; text-transform:uppercase; color:var(--gold); text-align:left; padding:8px 12px; border-bottom:2px solid var(--gold-dim); white-space:nowrap; }
+.price-table td { padding:10px 12px; border-bottom:1px solid var(--border); vertical-align:middle; }
+.price-table tr:last-child td { border-bottom:none; }
+.price-table tr:hover td { background:rgba(184,151,42,0.04); }
+.pt-tranche { font-family:'Cinzel',serif; font-size:11px; color:var(--text-hi); font-weight:600; }
+.pt-dd { font-family:'Cinzel',serif; font-size:14px; font-weight:700; }
+.pt-pct { font-size:11px; color:var(--text-mid); margin-top:1px; }
+.pt-price { font-family:'Cinzel',serif; font-size:15px; font-weight:600; }
+.pt-price-sub { font-size:9px; color:var(--text-lo); margin-top:1px; }
+.pt-urgency { display:inline-flex; align-items:center; gap:4px; padding:3px 9px; border-radius:10px; font-size:9px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; white-space:nowrap; }
+.urg-watch  { background:var(--green-dim); color:var(--green); }
+.urg-buy    { background:#3d3000; color:var(--orange); }
+.urg-strong { background:var(--red-dim); color:var(--red); }
+.urg-max    { background:#3d0808; color:#ff7070; }
+
+/* Custom index selector buttons */
+.custom-idx-btn { background:var(--card2); border:1px solid var(--border); border-radius:3px; padding:7px 16px; font-family:'Cinzel',serif; font-size:10px; letter-spacing:0.08em; color:var(--text-mid); cursor:pointer; transition:all 0.2s; white-space:nowrap; }
+.custom-idx-btn:hover { border-color:var(--gold-dim); color:var(--text-hi); }
+.custom-idx-btn.active { background:var(--gold-dim); border-color:var(--gold); color:var(--gold-lt); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="brand-ornament">IS</div>
+    <div>
+      <div class="brand-text">Inspirational Sharing</div>
+      <div class="brand-sub">Crash Buying Simulator</div>
+    </div>
+  </div>
+  <div class="header-tag">Educational · Not Financial Advice</div>
+</header>
+
+<div class="container page">
+
+  <div class="hero">
+    <div class="hero-eyebrow">Qimen Dunjia · Bazi · Financial Clarity</div>
+    <h1 class="hero-title">The <span>Crash Buying</span> Simulator</h1>
+    <p class="hero-sub">Select your index, configure your dry powder, and experience market crashes before they happen — with discipline, not emotion.</p>
+  </div>
+
+  <!-- ═══ SCENARIO PICKER ═══ -->
+  <div class="scenario-section">
+    <div class="section-label">Step 1 — Choose Index & Historical Scenario</div>
+
+    <!-- Index tabs -->
+    <div class="scenario-tabs">
+      <button class="stab active" onclick="filterScenarios('all',this)">All Scenarios</button>
+      <button class="stab" onclick="filterScenarios('sp500',this)">S&P 500</button>
+      <button class="stab" onclick="filterScenarios('nasdaq',this)">Nasdaq 100</button>
+      <button class="stab" onclick="filterScenarios('msci',this)">MSCI World</button>
+      <button class="stab" onclick="filterScenarios('custom',this)">Custom</button>
+    </div>
+
+    <div class="scenario-cards" id="scenarioCards">
+      <!-- rendered by JS -->
+    </div>
+  </div>
+
+  <!-- ═══ MAIN SIMULATOR ═══ -->
+  <div class="section-label">Step 2 — Configure & Run</div>
+  <div class="main-grid">
+
+    <!-- LEFT CONTROLS -->
+    <div>
+      <div class="card card-gold" style="margin-bottom:12px;">
+        <div class="card-title">Portfolio Setup</div>
+        <div class="field">
+          <label>Total Portfolio Value</label>
+          <div class="val-display" id="portfolioDisplay">$100,000 <span>SGD</span></div>
+          <input type="range" id="portfolioSlider" min="10000" max="500000" step="5000" value="100000">
+        </div>
+        <div class="field">
+          <label>Dry Powder Allocation</label>
+          <div class="val-display" id="powderDisplay">20% <span>= $20,000</span></div>
+          <input type="range" id="powderSlider" min="5" max="50" step="5" value="20">
+          <div class="tip">Cash reserved for crash deployment</div>
+        </div>
+      </div>
+
+      <div class="card card-gold" style="margin-bottom:12px;">
+        <div class="card-title">Deployment Mode</div>
+        <div class="mode-group">
+          <button class="mode-btn active" id="btnSignal" onclick="setMode('signal')">Signal</button>
+          <button class="mode-btn" id="btnSpread" onclick="setMode('spread')">Spread-Out</button>
+          <button class="mode-btn" id="btnHybrid" onclick="setMode('hybrid')">Hybrid</button>
+        </div>
+        <div class="insight" style="margin-bottom:0;">
+          <div class="insight-title" id="modeTitle">Signal-Based</div>
+          <div class="insight-body" id="modeDesc">Deploy each tranche when the market hits a specific drawdown threshold — more capital at deeper discounts.</div>
+        </div>
+      </div>
+
+      <!-- CPF Toggle -->
+      <div class="cpf-toggle" id="cpfToggle" onclick="toggleCPF()">
+        <div class="cpf-label">
+          <strong>CPF-OA Overlay</strong>
+          Show CPF compounding alongside crash buying
+        </div>
+        <div class="cpf-switch"></div>
+      </div>
+
+      <!-- Compare Toggle -->
+      <div class="compare-row" id="compareToggle" onclick="toggleCompare()">
+        <div class="compare-icon">⚖</div>
+        <div class="compare-label">
+          <strong>Side-by-Side Compare</strong>
+          Signal vs Spread-Out on same crash
+        </div>
+        <div style="font-size:10px; color:var(--text-lo);" id="compareStatus">OFF</div>
+      </div>
+
+      <div class="card card-gold" style="margin-bottom:12px;" id="scenarioParamCard">
+        <div class="card-title" id="scenarioParamTitle">Scenario Parameters</div>
+
+        <!-- HISTORICAL VIEW — shown when a named scenario is selected -->
+        <div id="historicalParams" style="display:none;">
+          <div style="background:var(--card2); border:1px solid var(--border); border-radius:3px; padding:12px; margin-bottom:12px;">
+            <div style="font-size:9px; letter-spacing:0.12em; text-transform:uppercase; color:var(--teal); margin-bottom:10px;">Locked Historical Data</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px;">
+              <div>
+                <div style="font-size:9px; color:var(--text-lo); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:3px;">Max Drawdown</div>
+                <div id="hpDrawdown" style="font-family:'Cinzel',serif; font-size:22px; font-weight:700; color:var(--red);">—</div>
+              </div>
+              <div>
+                <div style="font-size:9px; color:var(--text-lo); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:3px;">Crash Duration</div>
+                <div id="hpCrash" style="font-family:'Cinzel',serif; font-size:22px; font-weight:700; color:var(--orange);">—</div>
+                <div style="font-size:9px; color:var(--text-lo);">days to bottom</div>
+              </div>
+              <div>
+                <div style="font-size:9px; color:var(--text-lo); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:3px;">Recovery</div>
+                <div id="hpRecovery" style="font-family:'Cinzel',serif; font-size:22px; font-weight:700; color:var(--teal);">—</div>
+                <div style="font-size:9px; color:var(--text-lo);">days to full peak</div>
+              </div>
+            </div>
+          </div>
+          <div id="hpContext" style="font-family:'Cormorant Garamond',serif; font-size:14px; color:var(--text-mid); font-style:italic; line-height:1.6; margin-bottom:8px;"></div>
+          <div style="font-size:9px; color:var(--text-lo); padding:6px 8px; background:var(--card2); border-radius:2px;">Source: actual historical market data for this event. The simulator uses these exact parameters to generate a realistic crash shape.</div>
+        </div>
+
+        <!-- CUSTOM SLIDERS — shown only when Custom is selected -->
+        <div id="customParams">
+          <div style="font-size:10px; color:var(--text-mid); margin-bottom:12px; font-style:italic;">Set your own scenario — useful for stress-testing a crash you think is coming, or testing a specific drawdown depth.</div>
+          <div class="field">
+            <label>Max Drawdown</label>
+            <div class="val-display" id="drawdownDisplay">−35%</div>
+            <input type="range" id="drawdownSlider" min="10" max="85" step="5" value="35">
+          </div>
+          <div class="field">
+            <label>Crash Duration</label>
+            <div class="val-display" id="durationDisplay">90 <span>days</span></div>
+            <input type="range" id="durationSlider" min="15" max="930" step="5" value="90">
+          </div>
+          <div class="field">
+            <label>Recovery Duration</label>
+            <div class="val-display" id="recoveryDisplay">180 <span>days</span></div>
+            <input type="range" id="recoverySlider" min="60" max="1500" step="30" value="180">
+          </div>
+        </div>
+      </div>
+
+      <button class="btn-primary" id="btnRun" onclick="runSimulation()">▶ Run Simulation</button>
+      <button class="btn-primary btn-step" id="btnStep" onclick="stepSimulation()" disabled>Step Forward ›</button>
+      <button class="btn-secondary" onclick="resetSimulation()">↺ Reset</button>
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div>
+      <!-- Selected scenario info -->
+      <div class="card" style="margin-bottom:12px; border-color:var(--teal-dim);">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+          <div>
+            <div id="activeScenarioName" style="font-family:'Cinzel',serif; font-size:13px; color:var(--text-hi); letter-spacing:0.06em;">Custom Scenario</div>
+            <div id="activeScenarioIndex" style="font-size:10px; color:var(--teal); letter-spacing:0.1em; text-transform:uppercase; margin-top:2px;">Configure parameters on the left</div>
+          </div>
+          <div id="statusPill" class="status-pill pill-bull"><span class="pill-dot"></span><span id="statusText">Ready</span></div>
+        </div>
+
+        <!-- Day Pointer -->
+        <div style="margin-bottom:0;">
+          <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px;">
+            <div style="font-size:9px; letter-spacing:0.14em; text-transform:uppercase; color:var(--gold);">Day Pointer — Drawdown from Peak</div>
+            <div style="font-size:11px; color:var(--text-lo);">Day <span id="dayCounter" style="color:var(--text-hi); font-family:'Cinzel',serif; font-size:14px;">0</span></div>
+          </div>
+          <div class="dp-track">
+            <div class="dp-fill" id="dpFill" style="width:0%; background:var(--green);"></div>
+            <div class="dp-pointer" id="dpPointer" style="left:0%;"></div>
+          </div>
+          <div class="dp-labels">
+            <span>0%</span><span>−10%</span><span>−20%</span><span>−30%</span><span>−40%</span><span>−50%+</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chart -->
+      <div class="card" style="margin-bottom:12px;">
+        <div class="chart-wrap"><canvas id="priceChart"></canvas></div>
+        <div style="display:flex; gap:14px; font-size:9px; color:var(--text-lo); margin-top:6px;">
+          <span style="display:flex;align-items:center;gap:5px;"><span style="display:inline-block;width:16px;height:2px;background:var(--gold);border-radius:1px;"></span>Market Price</span>
+          <span style="display:flex;align-items:center;gap:5px;"><span style="display:inline-block;width:16px;height:1px;background:var(--teal);border-radius:1px; border-top: 1px dashed var(--teal);"></span>Peak</span>
+          <span style="display:flex;align-items:center;gap:5px;"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--green);"></span>Buy Deployed</span>
+          <span id="compareLegend" style="display:none; align-items:center;gap:5px;"><span style="display:inline-block;width:16px;height:2px;background:var(--crimson-lt);border-radius:1px;"></span>Spread-Out</span>
+        </div>
+      </div>
+
+      <!-- Metrics -->
+      <div class="stats-row">
+        <div class="stat-box">
+          <div class="stat-num" id="statDrawdown" style="color:var(--green);">0.0%</div>
+          <div class="stat-lbl">Drawdown</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num" id="statPowderLeft" style="color:var(--gold);">100%</div>
+          <div class="stat-lbl">Powder Left</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num" id="statDeployed" style="color:var(--teal);">$0</div>
+          <div class="stat-lbl">Deployed</div>
+        </div>
+      </div>
+
+      <!-- Tranche bars -->
+      <div class="card" style="margin-bottom:12px;">
+        <div class="card-title">Tranche Deployment Tracker</div>
+        <div class="tranche-grid" id="trancheGrid"></div>
+      </div>
+
+      <!-- Compare panel -->
+      <div class="compare-panel" id="comparePanel">
+        <div class="card" style="border-color:var(--crimson);">
+          <div class="card-title" style="color:var(--crimson-lt);">Side-by-Side Comparison</div>
+          <div class="compare-grid" id="compareGrid">
+            <div class="compare-col">
+              <div class="compare-col-title col-signal">Signal-Based</div>
+              <div id="cmpSignalTranches" class="tranche-grid"></div>
+            </div>
+            <div class="compare-col">
+              <div class="compare-col-title col-spread">Spread-Out</div>
+              <div id="cmpSpreadTranches" class="tranche-grid"></div>
+            </div>
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px;">
+            <div class="stat-box">
+              <div class="stat-num" id="cmpSignalResult" style="color:var(--gold);">—</div>
+              <div class="stat-lbl">Signal Final</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-num" id="cmpSpreadResult" style="color:var(--crimson-lt);">—</div>
+              <div class="stat-lbl">Spread Final</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CPF Panel -->
+      <div class="cpf-panel" id="cpfPanel">
+        <div style="font-family:'Cinzel',serif; font-size:10px; color:var(--teal); letter-spacing:0.14em; text-transform:uppercase; margin-bottom:10px;">CPF-OA Compounding Overlay</div>
+        <div class="cpf-metric"><span class="cpf-metric-lbl">Annual CPF-OA Contribution</span><span class="cpf-metric-val" id="cpfContrib">$0</span></div>
+        <div class="cpf-metric"><span class="cpf-metric-lbl">CPF-OA Rate</span><span class="cpf-metric-val">2.5% p.a.</span></div>
+        <div class="cpf-metric"><span class="cpf-metric-lbl">Projected 10-Year CPF Value</span><span class="cpf-metric-val" id="cpf10yr">$0</span></div>
+        <div class="cpf-metric"><span class="cpf-metric-lbl">Combined Portfolio (10yr)</span><span class="cpf-metric-val" id="cpfCombined">$0</span></div>
+        <div style="font-size:10px; color:var(--text-lo); margin-top:10px; font-style:italic; line-height:1.5;">CPF-OA at 2.5% p.a. guaranteed, used for S&P 500 via CPFIS (Endowus). Combined total shows crash buying + CPF compounding together.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ RESULTS + LOG + INSIGHT ═══ -->
+  <hr class="divider">
+  <div class="section-label">Results & Analysis</div>
+  <div class="grid-3">
+
+    <div class="card">
+      <div class="card-title">Insight Engine</div>
+      <div id="insightBox">
+        <div class="insight">
+          <div class="insight-title">Waiting for Simulation</div>
+          <div class="insight-body">Select a scenario above, configure your portfolio, and press Run. The market rewards preparation — not bravery.</div>
+        </div>
+        <div class="insight" style="border-left-color:var(--teal);">
+          <div class="insight-title">Did You Know</div>
+          <div class="insight-body" id="didYouKnow">The S&P 500 has recovered from every single bear market in its history.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Activity Log</div>
+      <div class="log-wrap" id="logWrap">
+        <div class="log-empty">No activity yet.</div>
+      </div>
+    </div>
+
+    <div class="card card-gold">
+      <div class="card-title">Outcome vs Buy-and-Hold</div>
+      <div class="metric-block">
+        <div class="metric-num" id="resultReturn" style="color:var(--gold);">—</div>
+        <div class="metric-label">Crash Buyer Advantage</div>
+      </div>
+      <hr class="divider" style="margin:10px 0;">
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px;">
+        <div class="stat-box">
+          <div class="stat-num" id="resultBuH" style="color:var(--text-mid); font-size:14px;">—</div>
+          <div class="stat-lbl">Buy & Hold</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num" id="resultCB" style="color:var(--gold); font-size:14px;">—</div>
+          <div class="stat-lbl">Crash Buyer</div>
+        </div>
+      </div>
+      <div id="resultInsight" class="insight" style="margin-bottom:0; border-left-color:var(--teal);">
+        <div class="insight-title">Lesson</div>
+        <div class="insight-body">Complete the simulation to see your outcome.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ BUY PRICE TABLE ═══ -->
+  <hr class="divider">
+  <div class="section-label">Step 3 — Your Exact Buy Prices</div>
+
+  <div class="card card-gold" style="margin-bottom:20px;">
+
+    <!-- Header row: title + context badge -->
+    <div style="display:flex; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:18px;">
+      <div>
+        <div class="card-title" style="border:none; padding:0; margin-bottom:5px;" id="ptCardTitle">Entry Price Calculator</div>
+        <div style="font-family:'Cormorant Garamond',serif; font-size:15px; color:var(--text-mid); font-style:italic;" id="ptCardSub">Showing buy prices for your selected index only. Switch scenario above to change index.</div>
+      </div>
+      <div id="ptIndexBadge" style="font-size:10px; color:var(--teal); letter-spacing:0.12em; text-transform:uppercase; border:1px solid var(--teal-dim); padding:4px 10px; border-radius:2px; white-space:nowrap; align-self:flex-start;">S&P 500</div>
+    </div>
+
+    <!-- Single index price input (shown for named scenarios) -->
+    <div id="ptSingleInput" style="margin-bottom:20px;">
+      <div class="price-input-box" style="max-width:300px;">
+        <div class="pi-index" id="ptInputLabel">S&P 500 <span class="pi-ticker" id="ptInputTicker">SPY / CSPX</span></div>
+        <div class="pi-input-row">
+          <span class="pi-dollar">$</span>
+          <input class="pi-input" id="price_active" type="number" value="740" min="1" max="999999" oninput="recalcPriceTable()">
+        </div>
+        <div class="pi-etf" id="ptInputEtf">SPY (US) / CSPX (London, lower tax) · via IBKR</div>
+      </div>
+    </div>
+
+    <!-- Custom index selector + input (shown for Custom only) -->
+    <div id="ptAllInputs" style="display:none; margin-bottom:20px;">
+      <div style="font-size:11px; color:var(--text-mid); margin-bottom:10px;">Choose which index to calculate buy prices for:</div>
+
+      <!-- Index selector buttons -->
+      <div style="display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap;">
+        <button class="custom-idx-btn active" id="cidxBtn_sp500"  onclick="setCustomIndex('sp500',this)">S&amp;P 500</button>
+        <button class="custom-idx-btn"        id="cidxBtn_nasdaq" onclick="setCustomIndex('nasdaq',this)">Nasdaq 100</button>
+        <button class="custom-idx-btn"        id="cidxBtn_msci"   onclick="setCustomIndex('msci',this)">MSCI World</button>
+        <button class="custom-idx-btn"        id="cidxBtn_all"    onclick="setCustomIndex('all',this)">All Three</button>
+      </div>
+
+      <!-- Single index input for custom (sp500 / nasdaq / msci) -->
+      <div id="cidxSingle" style="margin-bottom:0;">
+        <div class="price-input-box" style="max-width:300px;">
+          <div class="pi-index" id="cidxLabel">S&P 500 <span class="pi-ticker">SPY / CSPX</span></div>
+          <div class="pi-input-row">
+            <span class="pi-dollar">$</span>
+            <input class="pi-input" id="price_custom_single" type="number" value="740" min="1" max="999999" oninput="recalcPriceTable()">
+          </div>
+          <div class="pi-etf" id="cidxEtf">SPY (US) / CSPX (London, lower tax) · via IBKR</div>
+        </div>
+      </div>
+
+      <!-- All-three inputs (only when "All Three" is selected) -->
+      <div id="cidxAll" style="display:none;">
+        <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:12px;">
+          <div class="price-input-box">
+            <div class="pi-index">S&P 500 <span class="pi-ticker">SPY / CSPX</span></div>
+            <div class="pi-input-row"><span class="pi-dollar">$</span><input class="pi-input" id="price_sp500" type="number" value="740" min="1" max="999999" oninput="recalcPriceTable()"></div>
+            <div class="pi-etf">SPY (US) / CSPX (London, lower tax)</div>
+          </div>
+          <div class="price-input-box">
+            <div class="pi-index">Nasdaq 100 <span class="pi-ticker">CNDX / QQQ</span></div>
+            <div class="pi-input-row"><span class="pi-dollar">$</span><input class="pi-input" id="price_ndx" type="number" value="20800" min="1" max="999999" oninput="recalcPriceTable()"></div>
+            <div class="pi-etf">CNDX (London) · QQQ (US)</div>
+          </div>
+          <div class="price-input-box">
+            <div class="pi-index">MSCI World <span class="pi-ticker">IWDA</span></div>
+            <div class="pi-input-row"><span class="pi-dollar">$</span><input class="pi-input" id="price_msci" type="number" value="120" min="1" max="99999" oninput="recalcPriceTable()"></div>
+            <div class="pi-etf">IWDA (London) · via Endowus / IBKR</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div style="overflow-x:auto;">
+      <table class="price-table">
+        <thead id="ptHead"></thead>
+        <tbody id="priceTableBody"></tbody>
+      </table>
+    </div>
+
+    <!-- Guidance notes -->
+    <div style="margin-top:16px; display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px;">
+      <div class="insight" style="margin-bottom:0; border-left-color:var(--green);">
+        <div class="insight-title">When to Start</div>
+        <div class="insight-body">Begin at Tranche 1 (−10%). Shallow corrections often recover without hitting deeper levels — do not wait for the perfect bottom.</div>
+      </div>
+      <div class="insight" style="margin-bottom:0; border-left-color:var(--orange);">
+        <div class="insight-title">Sweet Spot</div>
+        <div class="insight-body">Tranches 3 and 4 (−20% to −25%) are historically the best value zone — deep enough for strong recovery gains, but common enough to actually occur.</div>
+      </div>
+      <div class="insight" style="margin-bottom:0; border-left-color:var(--crimson-lt);">
+        <div class="insight-title">Tranche 5 (−30%)</div>
+        <div class="insight-body">The biggest, deepest bullet (30% of dry powder). Reserve it for genuine crises — GFC-level events. If it never triggers, your earlier tranches already did the job. Patience is the strategy.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- History Reference -->
+
+  <hr class="divider">
+  <div class="section-label">Historical Crash Reference</div>
+  <div class="history-grid">
+    <div class="hist-card">
+      <div style="font-size:10px; color:var(--teal); text-transform:uppercase; letter-spacing:0.1em; margin-bottom:6px;">S&P 500</div>
+      <div class="hist-dd" style="color:var(--red);">−57%</div>
+      <div class="hist-sub">Global Financial Crisis · 2008–2009</div>
+      <div class="hist-body">517 days to bottom · ~1,400 days recovery. Signal buyers deploying at −40% to −50% captured near-generational returns in the following decade.</div>
+    </div>
+    <div class="hist-card">
+      <div style="font-size:10px; color:var(--teal); text-transform:uppercase; letter-spacing:0.1em; margin-bottom:6px;">Nasdaq 100</div>
+      <div class="hist-dd" style="color:var(--red);">−83%</div>
+      <div class="hist-sub">Dot-Com Bust · 2000–2002</div>
+      <div class="hist-body">929 days to bottom · 15+ years to full recovery. The most brutal modern crash — only diversified index buyers with deep tranches survived with gains.</div>
+    </div>
+    <div class="hist-card">
+      <div style="font-size:10px; color:var(--orange); text-transform:uppercase; letter-spacing:0.1em; margin-bottom:6px;">S&P 500</div>
+      <div class="hist-dd" style="color:var(--orange);">−34%</div>
+      <div class="hist-sub">COVID Flash Crash · 2020</div>
+      <div class="hist-body">Only 33 days to bottom · 149 days full recovery. The fastest major crash in history. Spread-out weekly buyers captured the bottom with 5 tranches.</div>
+    </div>
+  </div>
+
+</div>
+<footer>Inspirational Sharing · Crash Buying Simulator · For Educational Purposes Only · Not Financial Advice</footer>
+
+<script>
+// ═══════════════════════════════════════════════
+// SCENARIOS
+// ═══════════════════════════════════════════════
+const SCENARIOS = [
+  { id:'sp500_covid',   name:'COVID Flash Crash',      index:'sp500',  label:'S&P 500',     dd:34,  crash:33,   rec:149,  badge:'orange', badgeTxt:'Fast',     color:'#e05252', context:'The fastest major crash in modern history. COVID-19 panic wiped 34% in just 33 days — then recovered entirely in 149 days. The speed caught most investors unprepared. Spread-out weekly buyers who stayed the course captured the full recovery.' },
+  { id:'sp500_gfc',     name:'Global Financial Crisis', index:'sp500',  label:'S&P 500',     dd:57,  crash:517,  rec:1400, badge:'red',    badgeTxt:'Severe',   color:'#c0302e', context:'The worst post-war US recession. The S&P 500 fell 57% over 517 days as the banking system nearly collapsed. Investors who deployed dry powder at −40% to −50% captured 200–400% gains over the following decade.' },
+  { id:'sp500_dotcom',  name:'Dot-Com (S&P 500)',       index:'sp500',  label:'S&P 500',     dd:49,  crash:929,  rec:1300, badge:'red',    badgeTxt:'Deep',     color:'#c0302e', context:'The dot-com bubble burst wiped 49% from the S&P 500 over nearly 3 years. A slow, grinding decline with many false rallies that destroyed investor discipline. Signal-based buyers with 5 tranches spread across −10% to −40% recovered well.' },
+  { id:'sp500_2022',    name:'Rate Hike Bear 2022',     index:'sp500',  label:'S&P 500',     dd:25,  crash:282,  rec:400,  badge:'orange', badgeTxt:'Moderate', color:'#d4883a', context:'The Fed\'s aggressive rate hiking cycle in 2022 drove the S&P 500 down 25% over 282 days. A moderate but psychologically draining slow grind. Spread-out buyers who deployed monthly averaged down effectively.' },
+  { id:'sp500_trump25', name:'Trump Tariff Crash 2025', index:'sp500',  label:'S&P 500',     dd:19,  crash:45,   rec:90,   badge:'teal',   badgeTxt:'Shallow',  color:'#4a9eaa', context:'Trump\'s April 2025 tariff announcement triggered a swift 19% correction over 45 days before a rapid rebound. A shallow crash where only Tranche 1 and 2 buyers deployed — but those tranches still captured meaningful recovery gains.' },
+  { id:'ndx_dotcom',    name:'Dot-Com Bust',            index:'nasdaq', label:'Nasdaq 100',  dd:83,  crash:929,  rec:5475, badge:'red',    badgeTxt:'Historic', color:'#8b1a1a', context:'The most catastrophic modern index crash. Nasdaq fell 83% over 929 days as overvalued tech stocks collapsed. Recovery took 15 years. Only investors who bought in tranches at −50% to −70% and held for a decade emerged ahead. A sobering reminder that individual tech stocks within the index often never recovered at all.' },
+  { id:'ndx_gfc',       name:'GFC Nasdaq',              index:'nasdaq', label:'Nasdaq 100',  dd:54,  crash:517,  rec:1000, badge:'red',    badgeTxt:'Severe',   color:'#c0302e', context:'Nasdaq fell 54% alongside the broader market during the GFC. Severe but shorter than the dot-com bust, and with a cleaner recovery. Signal buyers who deployed at −30% to −40% saw 120%+ gains on those tranches during the subsequent bull run.' },
+  { id:'ndx_2022',      name:'Tech Wreckage 2022',      index:'nasdaq', label:'Nasdaq 100',  dd:35,  crash:280,  rec:500,  badge:'orange', badgeTxt:'Deep',     color:'#e05252', context:'Rising interest rates hit high-growth tech valuations hard. Nasdaq fell 35% over 280 days in 2022 — deeper than S&P 500 in the same period. A common pattern: Nasdaq always crashes deeper than the broader market. This is why it can also recover faster when sentiment reverses.' },
+  { id:'ndx_covid',     name:'COVID Nasdaq',            index:'nasdaq', label:'Nasdaq 100',  dd:28,  crash:25,   rec:120,  badge:'teal',   badgeTxt:'Fast',     color:'#4a9eaa', context:'Nasdaq fell 28% in just 25 days during COVID panic — even faster than the S&P 500 version. But tech\'s role in the remote-work economy meant it recovered and then surged well past its previous peak within 4 months. The fastest crash-and-recover cycle in Nasdaq history.' },
+  { id:'msci_gfc',      name:'MSCI GFC',                index:'msci',   label:'MSCI World',  dd:54,  crash:517,  rec:1200, badge:'red',    badgeTxt:'Severe',   color:'#c0302e', context:'MSCI World fell 54% during the GFC, closely tracking the S&P 500 given its ~60% US weighting. The global diversification slightly softened the blow vs pure US exposure. Recovery took approximately 3.3 years for the index to return to its pre-crisis peak.' },
+  { id:'msci_covid',    name:'MSCI COVID',              index:'msci',   label:'MSCI World',  dd:34,  crash:33,   rec:200,  badge:'orange', badgeTxt:'Fast',     color:'#e05252', context:'MSCI World fell 34% in 33 days — almost identical to the S&P 500, reflecting high global market correlation during acute crises. Recovery took slightly longer than the US alone (200 days) due to slower vaccine rollout outside the US.' },
+  { id:'msci_2022',     name:'MSCI 2022 Bear',          index:'msci',   label:'MSCI World',  dd:20,  crash:280,  rec:420,  badge:'teal',   badgeTxt:'Mild',     color:'#4a9eaa', context:'Global diversification provided modest protection in 2022, with MSCI World falling 20% vs S&P 500\'s 25%. European energy stocks and commodity exposure offered some offset to tech weakness. A mild but long bear market that tested investor patience over most of the year.' },
+  { id:'custom',        name:'Custom Scenario',         index:'custom', label:'Your Setup',  dd:null,crash:null, rec:null, badge:'green',  badgeTxt:'Custom',   color:'#b8972a', context:null },
+];
+
+let activeFilter = 'all';
+let selectedScenario = null;
+
+function filterScenarios(f, el) {
+  activeFilter = f;
+  document.querySelectorAll('.stab').forEach(b => b.classList.remove('active'));
+  if (el) el.classList.add('active');
+  renderScenarioCards();
+  // Auto-select first card in filtered group so sliders/panel update immediately
+  const list = f === 'all' ? SCENARIOS : SCENARIOS.filter(s => s.index === f || (f === 'custom' && s.index === 'custom'));
+  if (list.length > 0) selectScenario(list[0].id);
+}
+
+function renderScenarioCards() {
+  const grid = document.getElementById('scenarioCards');
+  const list = activeFilter === 'all' ? SCENARIOS : SCENARIOS.filter(s => s.index === activeFilter || (activeFilter === 'custom' && s.index === 'custom'));
+  grid.innerHTML = list.map(s => `
+    <div class="sc-card ${selectedScenario && selectedScenario.id === s.id ? 'selected' : ''}" onclick="selectScenario('${s.id}')">
+      <span class="sc-badge badge-${s.badge}">${s.badgeTxt}</span>
+      <div class="sc-name">${s.name}</div>
+      <div class="sc-index">${s.label}</div>
+      <div class="sc-stats">
+        ${s.dd ? `<div class="sc-stat"><strong style="color:${s.color}">−${s.dd}%</strong>Max DD</div>` : '<div class="sc-stat"><strong style="color:var(--gold)">Custom</strong>Set below</div>'}
+        ${s.crash ? `<div class="sc-stat"><strong>${s.crash > 365 ? (s.crash/365).toFixed(1)+'yr' : s.crash+'d'}</strong>Crash</div>` : ''}
+        ${s.rec ? `<div class="sc-stat"><strong>${s.rec > 999 ? (s.rec/365).toFixed(1)+'yr' : s.rec+'d'}</strong>Recovery</div>` : ''}
+      </div>
+    </div>
+  `).join('');
+}
+
+function selectScenario(id) {
+  selectedScenario = SCENARIOS.find(s => s.id === id);
+  const s = selectedScenario;
+  const isCustom = !s || s.index === 'custom';
+
+  // Switch between historical data panel and custom sliders
+  document.getElementById('historicalParams').style.display = isCustom ? 'none' : 'block';
+  document.getElementById('customParams').style.display     = isCustom ? 'block' : 'none';
+
+  if (!isCustom) {
+    // Show locked real historical data
+    document.getElementById('hpDrawdown').textContent = `−${s.dd}%`;
+    document.getElementById('hpCrash').textContent    = s.crash > 365 ? `${(s.crash/365).toFixed(1)}yr` : `${s.crash}d`;
+    document.getElementById('hpRecovery').textContent = s.rec > 365 ? `${(s.rec/365).toFixed(1)}yr` : `${s.rec}d`;
+    document.getElementById('hpContext').textContent  = s.context || '';
+
+    // Set simulation variables from real data
+    maxDrawdownPct = s.dd;
+    crashDays      = Math.min(s.crash, 930);
+    recoveryDays   = Math.min(s.rec, 1500);
+
+    document.getElementById('activeScenarioName').textContent  = s.name;
+    document.getElementById('activeScenarioIndex').textContent = `${s.label} · ${s.badgeTxt} crash · −${s.dd}% drawdown`;
+    document.getElementById('scenarioParamTitle').textContent  = s.name + ' — Historical Data';
+    document.getElementById('scenarioParamCard').style.borderColor = s.color;
+  } else {
+    // Custom: read from sliders
+    maxDrawdownPct = +document.getElementById('drawdownSlider').value;
+    crashDays      = +document.getElementById('durationSlider').value;
+    recoveryDays   = +document.getElementById('recoverySlider').value;
+
+    document.getElementById('activeScenarioName').textContent  = 'Custom Scenario';
+    document.getElementById('activeScenarioIndex').textContent = 'Set your own crash parameters below';
+    document.getElementById('scenarioParamTitle').textContent  = 'Custom Scenario Parameters';
+    document.getElementById('scenarioParamCard').style.borderColor = 'var(--gold-dim)';
+  }
+
+  renderScenarioCards();
+  updatePriceTableIndex();
+}
+
+
+// ═══════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════
+let mode = 'signal';
+let simInterval = null;
+let simData = [];
+let simDataCompare = [];
+let simDay = 0;
+let peakValue = 1000;
+let totalPowder = 0;
+let powderRemaining = 0;
+let deployedCapital = 0;
+let portfolioBase = 100000;
+let powderPct = 20;
+let maxDrawdownPct = 35;
+let crashDays = 90;
+let recoveryDays = 180;
+let tranches = [];
+let tranchesCompare = [];
+let chartCtx = null;
+let chartData = { prices:[], buys:[], pricesB:[], buysB:[] };
+let cpfOn = false;
+let compareOn = false;
+
+const MODE_INFO = {
+  signal: { title:'Signal-Based', desc:'Deploy each tranche when the market hits a specific drawdown threshold. More capital at deeper discounts — closest to Mr. Loo\'s system.' },
+  spread: { title:'Spread-Out (Time)', desc:'Deploy equal tranches at fixed time intervals regardless of drawdown depth. Simple and automatic. Best for fast crashes like COVID-19.' },
+  hybrid: { title:'Hybrid', desc:'Trigger at a drawdown threshold, then split each tranche over several days. Balances precision with timing-risk protection.' }
+};
+
+const TRANCHE_DEFS = {
+  signal: [
+    { label:'−10%', threshold:10, color:'#d4883a', pct:10 },
+    { label:'−15%', threshold:15, color:'#d4883a', pct:15 },
+    { label:'−20%', threshold:20, color:'#e05252', pct:20 },
+    { label:'−25%', threshold:25, color:'#e05252', pct:25 },
+    { label:'−30%', threshold:30, color:'#c0302e', pct:30 },
+  ],
+  spread: [
+    { label:'Week 1', color:'#d4883a', pct:20 },
+    { label:'Week 2', color:'#d4883a', pct:20 },
+    { label:'Week 3', color:'#e05252', pct:20 },
+    { label:'Week 4', color:'#e05252', pct:20 },
+    { label:'Week 5', color:'#c0302e', pct:20 },
+  ],
+  hybrid: [
+    { label:'−10% A', threshold:10, color:'#d4883a', pct:10 },
+    { label:'−10% B', threshold:12, color:'#d4883a', pct:10 },
+    { label:'−20% A', threshold:20, color:'#e05252', pct:15 },
+    { label:'−20% B', threshold:23, color:'#e05252', pct:15 },
+    { label:'−35% A', threshold:35, color:'#c0302e', pct:25 },
+    { label:'−35% B', threshold:38, color:'#c0302e', pct:25 },
+  ]
+};
+
+const INSIGHTS = [
+  "The S&P 500 has recovered from every single bear market in its history — including the Great Depression.",
+  "Waiting for the exact bottom means missing it. Most recoveries begin when fear is still at its peak.",
+  "Dry powder held in T-bills earns 3–5% while you wait. It is not idle — it is armed.",
+  "A purchase at −40% needs only a 67% gain to double your money on that tranche alone.",
+  "The COVID-19 crash bottomed in 33 days. Spread-out buyers who deployed weekly captured the full recovery.",
+  "In 2009, investors who deployed at the GFC trough captured 400%+ gains over the following decade.",
+  "Average S&P 500 intra-year drawdown since 1980: −14%. Yet 71% of years ended with a positive return.",
+  "Emotional neutrality is the real edge. A pre-built system does the thinking so you execute without fear.",
+];
+
+const DID_YOU_KNOW = [
+  "The S&P 500 sees a −10%+ correction roughly every 1.6 years historically.",
+  "Markets spend about 43% of all time in drawdown or recovery mode — patience is mandatory.",
+  "A −50% loss requires a 100% gain just to break even. Buying the dip literally halves your recovery time.",
+  "Berkshire Hathaway held 30%+ cash entering 2008, giving Buffett legendary buying power.",
+  "SRS contributions give a tax deduction AND create dry powder — a triple win with CPF compounding.",
+  "The Nasdaq crashed −83% in the dot-com bust. Undiversified investors never fully recovered.",
+];
+
+// ═══════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════
+window.onload = () => {
+  renderScenarioCards();
+  initSliders();
+  buildTrancheBars();
+  // Default to COVID Flash Crash on load — clearest, fastest scenario
+  selectScenario('sp500_covid');
+  requestAnimationFrame(() => { initChart(); });
+  setInterval(() => { const el = document.getElementById('didYouKnow'); if (el) el.textContent = DID_YOU_KNOW[Math.floor(Math.random()*DID_YOU_KNOW.length)]; }, 8000);
+};
+
+// ═══════════════════════════════════════════════
+// SLIDERS
+// ═══════════════════════════════════════════════
+function initSliders() {
+  document.getElementById('portfolioSlider').addEventListener('input', e => { portfolioBase = +e.target.value; updatePortfolioDisplay(); updateCPF(); recalcPriceTable(); });
+  document.getElementById('powderSlider').addEventListener('input', e => { powderPct = +e.target.value; updatePortfolioDisplay(); updateCPF(); recalcPriceTable(); });
+  document.getElementById('drawdownSlider').addEventListener('input', e => { maxDrawdownPct = +e.target.value; document.getElementById('drawdownDisplay').textContent = `−${maxDrawdownPct}%`; });
+  document.getElementById('durationSlider').addEventListener('input', e => { crashDays = +e.target.value; document.getElementById('durationDisplay').innerHTML = `${crashDays} <span>days</span>`; });
+  document.getElementById('recoverySlider').addEventListener('input', e => { recoveryDays = +e.target.value; document.getElementById('recoveryDisplay').innerHTML = `${recoveryDays} <span>days</span>`; });
+  updatePortfolioDisplay();
+}
+
+function updatePortfolioDisplay() {
+  const amt = Math.round(portfolioBase * powderPct / 100);
+  document.getElementById('portfolioDisplay').innerHTML = `${fmt(portfolioBase)} <span>SGD</span>`;
+  document.getElementById('powderDisplay').innerHTML = `${powderPct}% <span>= ${fmt(amt)}</span>`;
+}
+
+// ═══════════════════════════════════════════════
+// MODE
+// ═══════════════════════════════════════════════
+function setMode(m) {
+  mode = m;
+  ['signal','spread','hybrid'].forEach(x => document.getElementById('btn'+x.charAt(0).toUpperCase()+x.slice(1)).classList.toggle('active', x===m));
+  document.getElementById('modeTitle').textContent = MODE_INFO[m].title;
+  document.getElementById('modeDesc').textContent = MODE_INFO[m].desc;
+  buildTrancheBars();
+}
+
+// ═══════════════════════════════════════════════
+// CPF
+// ═══════════════════════════════════════════════
+function toggleCPF() {
+  cpfOn = !cpfOn;
+  document.getElementById('cpfToggle').classList.toggle('on', cpfOn);
+  document.getElementById('cpfPanel').classList.toggle('visible', cpfOn);
+  updateCPF();
+}
+
+function updateCPF() {
+  if (!cpfOn) return;
+  const annualContrib = Math.round(portfolioBase * 0.08);
+  const rate = 0.025;
+  let val = 0;
+  for (let y = 0; y < 10; y++) val = (val + annualContrib) * (1 + rate);
+  document.getElementById('cpfContrib').textContent = fmt(annualContrib) + '/yr';
+  document.getElementById('cpf10yr').textContent = fmt(Math.round(val));
+  document.getElementById('cpfCombined').textContent = '—';
+}
+
+function updateCPFCombined(crashBuyerFinal) {
+  if (!cpfOn) return;
+  const annualContrib = Math.round(portfolioBase * 0.08);
+  const rate = 0.025;
+  let val = 0;
+  for (let y = 0; y < 10; y++) val = (val + annualContrib) * (1 + rate);
+  document.getElementById('cpfCombined').textContent = fmt(Math.round(val + crashBuyerFinal));
+}
+
+// ═══════════════════════════════════════════════
+// COMPARE
+// ═══════════════════════════════════════════════
+function toggleCompare() {
+  compareOn = !compareOn;
+  document.getElementById('compareToggle').classList.toggle('on', compareOn);
+  document.getElementById('compareStatus').textContent = compareOn ? 'ON' : 'OFF';
+  document.getElementById('comparePanel').classList.toggle('visible', compareOn);
+  document.getElementById('compareLegend').style.display = compareOn ? 'flex' : 'none';
+  if (compareOn) buildCompareTranches();
+}
+
+function buildCompareTranches() {
+  renderMiniBars('cmpSignalTranches', TRANCHE_DEFS.signal.map(t => ({...t, deployed:false})));
+  renderMiniBars('cmpSpreadTranches', getSpreadDefs().map(t => ({...t, deployed:false})));
+}
+
+function renderMiniBars(containerId, defs) {
+  const el = document.getElementById(containerId);
+  el.innerHTML = defs.map((t,i) => `
+    <div class="tranche-row" id="${containerId}-row-${i}">
+      <div class="tranche-label">${t.label}</div>
+      <div class="tranche-bar-track"><div class="tranche-bar-fill" id="${containerId}-bar-${i}" style="width:0%;background:var(--card);"></div></div>
+      <div class="tranche-pct" id="${containerId}-pct-${i}">—</div>
+    </div>
+  `).join('');
+}
+
+// ═══════════════════════════════════════════════
+// TRANCHE BARS
+// ═══════════════════════════════════════════════
+function getSpreadDefs() {
+  const days = [crashDays*0.1, crashDays*0.25, crashDays*0.4, crashDays*0.6, crashDays*0.8].map(Math.round);
+  return TRANCHE_DEFS.spread.map((t,i) => ({...t, timeDay: days[i]}));
+}
+
+function buildTrancheBars() {
+  const defs = mode === 'signal' ? TRANCHE_DEFS.signal : mode === 'spread' ? getSpreadDefs() : TRANCHE_DEFS.hybrid;
+  tranches = defs.map(d => ({...d, deployed:false, deployedPrice:null, deployedAmount:0}));
+  const grid = document.getElementById('trancheGrid');
+  grid.innerHTML = tranches.map((t,i) => `
+    <div class="tranche-row" id="tranche-${i}">
+      <div class="tranche-label">${t.label}</div>
+      <div class="tranche-bar-track"><div class="tranche-bar-fill" id="bar-${i}" style="width:0%;background:var(--card2);"></div></div>
+      <div class="tranche-pct" id="pct-${i}">—</div>
+    </div>
+  `).join('');
+}
+
+// ═══════════════════════════════════════════════
+// CHART
+// ═══════════════════════════════════════════════
+function initChart() {
+  const canvas = document.getElementById('priceChart');
+  chartCtx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const w = canvas.offsetWidth || canvas.parentElement.offsetWidth || 500;
+  canvas.width = w * dpr;
+  canvas.height = 190 * dpr;
+  chartCtx.scale(dpr, dpr);
+  chartData = { prices:[], buys:[], pricesB:[], buysB:[] };
+  drawChart();
+}
+
+function drawChart() {
+  const canvas = document.getElementById('priceChart');
+  const w = canvas.offsetWidth, h = 190, ctx = chartCtx;
+  const dpr = window.devicePixelRatio || 1;
+  ctx.clearRect(0, 0, w*dpr, h*dpr);
+  const prices = chartData.prices;
+  if (!prices.length) {
+    ctx.fillStyle = 'rgba(90,83,68,0.3)'; ctx.font = '12px Inter'; ctx.textAlign = 'center';
+    ctx.fillText('Price chart will appear here once simulation runs', w/2, h/2); return;
+  }
+  const pad = {t:8,r:8,b:22,l:42};
+  const cw = w-pad.l-pad.r, ch = h-pad.t-pad.b;
+  const allP = [...prices, ...(chartData.pricesB||[])];
+  const minP = Math.min(...allP)*0.97, maxP = Math.max(...allP)*1.02;
+  const xs = i => pad.l+(i/(prices.length-1))*cw;
+  const ys = v => pad.t+(1-(v-minP)/(maxP-minP))*ch;
+
+  // Grid
+  [0,0.25,0.5,0.75,1].forEach(f => {
+    const y = pad.t+f*ch;
+    ctx.strokeStyle='rgba(46,42,34,0.8)'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(pad.l+cw,y); ctx.stroke();
+    ctx.fillStyle='rgba(90,83,68,0.7)'; ctx.font='9px Inter'; ctx.textAlign='right';
+    ctx.fillText(Math.round(maxP-f*(maxP-minP)), pad.l-3, y+3);
+  });
+
+  // Compare line B
+  if (compareOn && chartData.pricesB.length) {
+    const xsB = i => pad.l+(i/(chartData.pricesB.length-1))*cw;
+    ctx.beginPath(); ctx.strokeStyle='rgba(192,48,46,0.6)'; ctx.lineWidth=1.5; ctx.setLineDash([4,4]);
+    chartData.pricesB.forEach((p,i) => i===0 ? ctx.moveTo(xsB(i),ys(p)) : ctx.lineTo(xsB(i),ys(p)));
+    ctx.stroke(); ctx.setLineDash([]);
+    chartData.buysB.forEach(b => {
+      ctx.beginPath(); ctx.arc(pad.l+(b.idx/(chartData.pricesB.length-1))*cw, ys(chartData.pricesB[b.idx]), 4, 0, Math.PI*2);
+      ctx.fillStyle='rgba(192,48,46,0.8)'; ctx.fill();
+    });
+  }
+
+  // Gradient fill
+  const grad = ctx.createLinearGradient(0,pad.t,0,pad.t+ch);
+  grad.addColorStop(0,'rgba(184,151,42,0.15)'); grad.addColorStop(1,'rgba(184,151,42,0)');
+  ctx.beginPath(); ctx.moveTo(xs(0),ys(prices[0]));
+  prices.forEach((p,i) => ctx.lineTo(xs(i),ys(p)));
+  ctx.lineTo(xs(prices.length-1),pad.t+ch); ctx.lineTo(xs(0),pad.t+ch);
+  ctx.closePath(); ctx.fillStyle=grad; ctx.fill();
+
+  // Main line
+  ctx.beginPath(); ctx.strokeStyle='rgba(184,151,42,0.9)'; ctx.lineWidth=1.5; ctx.lineJoin='round';
+  prices.forEach((p,i) => i===0 ? ctx.moveTo(xs(i),ys(p)) : ctx.lineTo(xs(i),ys(p))); ctx.stroke();
+
+  // Peak line
+  ctx.beginPath(); ctx.strokeStyle='rgba(74,158,170,0.3)'; ctx.setLineDash([4,4]); ctx.lineWidth=1;
+  ctx.moveTo(pad.l,ys(peakValue)); ctx.lineTo(pad.l+cw,ys(peakValue)); ctx.stroke(); ctx.setLineDash([]);
+
+  // Buy markers
+  chartData.buys.forEach(b => {
+    const x = xs(b.idx), y = ys(prices[b.idx]);
+    ctx.beginPath(); ctx.arc(x,y,5,0,Math.PI*2);
+    ctx.fillStyle='#4caf7a'; ctx.fill();
+    ctx.strokeStyle='#0e0c09'; ctx.lineWidth=1.5; ctx.stroke();
+  });
+}
+
+// ═══════════════════════════════════════════════
+// SCENARIO GENERATION
+// ═══════════════════════════════════════════════
+function generateScenario() {
+  const total = crashDays + recoveryDays;
+  const maxDrop = peakValue * (maxDrawdownPct/100);
+  const prices = [peakValue];
+  for (let d = 1; d <= total; d++) {
+    const prev = prices[d-1];
+    let noise = (Math.random()-0.5)*0.014;
+    let target;
+    if (d <= crashDays) {
+      const curve = Math.pow(d/crashDays, 0.65);
+      target = peakValue - maxDrop*curve;
+      if (Math.random()<0.07) noise += 0.028;
+    } else {
+      const rp = (d-crashDays)/recoveryDays;
+      const bottom = peakValue-maxDrop;
+      target = bottom + (peakValue*1.1-bottom)*Math.pow(rp,1.3);
+      if (Math.random()<0.04) noise -= 0.015;
+    }
+    prices.push(Math.max(prev+(target-prev)*0.13+prev*noise, peakValue*0.05));
+  }
+  return prices;
+}
+
+// ═══════════════════════════════════════════════
+// SIMULATION
+// ═══════════════════════════════════════════════
+function runSimulation() {
+  resetSimulation(true);
+  simData = generateScenario();
+  if (compareOn) simDataCompare = generateScenario();
+  simDay = 0;
+  powderRemaining = portfolioBase * powderPct/100;
+  totalPowder = powderRemaining;
+  deployedCapital = 0;
+  buildTrancheBars();
+  if (compareOn) buildCompareTranches();
+
+  // Build compare tranches state
+  tranchesCompare = {
+    signal: TRANCHE_DEFS.signal.map(t => ({...t, deployed:false, deployedPrice:null, deployedAmount:0})),
+    spread: getSpreadDefs().map(t => ({...t, deployed:false, deployedPrice:null, deployedAmount:0})),
+  };
+
+  addLog(0,'info','Simulation started', fmt(portfolioBase));
+  addLog(0,'info','Dry powder', fmt(totalPowder));
+  if (cpfOn) addLog(0,'cpf','CPF-OA tracking ON','2.5% p.a.');
+
+  document.getElementById('btnRun').disabled = true;
+  document.getElementById('btnStep').disabled = false;
+
+  simInterval = setInterval(() => {
+    if (simDay >= simData.length-1) { clearInterval(simInterval); finishSimulation(); return; }
+    advanceDay();
+  }, 35);
+}
+
+function stepSimulation() {
+  if (simDay >= simData.length-1) { finishSimulation(); return; }
+  advanceDay();
+}
+
+function advanceDay() {
+  simDay++;
+  const price = simData[simDay];
+  chartData.prices.push(price);
+  if (compareOn && simDataCompare[simDay]) chartData.pricesB.push(simDataCompare[simDay]);
+
+  const drawdown = Math.max(0, (peakValue-price)/peakValue*100);
+
+  // Day pointer
+  const dpPct = Math.min(drawdown/50, 1)*100;
+  document.getElementById('dpFill').style.width = dpPct+'%';
+  document.getElementById('dpPointer').style.left = dpPct+'%';
+  const dpFill = document.getElementById('dpFill');
+  dpFill.style.background = drawdown<10 ? 'var(--green)' : drawdown<20 ? 'var(--orange)' : drawdown<35 ? 'var(--red)' : '#ff3030';
+
+  updateStatus(drawdown, price, simDay > crashDays);
+  tryDeploy(simDay, drawdown, price);
+  if (compareOn) tryDeployCompare(simDay, drawdown);
+
+  document.getElementById('dayCounter').textContent = simDay;
+  const ddStr = drawdown > 0.1 ? `−${drawdown.toFixed(1)}%` : `0.0%`;
+  document.getElementById('statDrawdown').textContent = ddStr;
+  document.getElementById('statDrawdown').style.color = drawdown > 0.1 ? 'var(--red)' : 'var(--green)';
+  document.getElementById('statPowderLeft').textContent = (powderRemaining/totalPowder*100).toFixed(0)+'%';
+  document.getElementById('statDeployed').textContent = fmt(Math.round(deployedCapital));
+
+  updateInsight(drawdown);
+  drawChart();
+}
+
+function tryDeploy(day, drawdown, price) {
+  tranches.forEach((t,i) => {
+    if (t.deployed) return;
+    const trigger = mode==='spread' ? day >= t.timeDay : drawdown >= t.threshold;
+    if (!trigger || powderRemaining <= 0) return;
+    const amount = Math.min(totalPowder*(t.pct/100), powderRemaining);
+    t.deployed = true; t.deployedPrice = price; t.deployedAmount = amount;
+    deployedCapital += amount; powderRemaining = Math.max(0, powderRemaining-amount);
+    document.getElementById(`bar-${i}`).style.width = '100%';
+    document.getElementById(`bar-${i}`).style.background = t.color;
+    document.getElementById(`pct-${i}`).textContent = t.pct+'%';
+    document.getElementById(`tranche-${i}`).classList.add('triggered');
+    chartData.buys.push({idx: chartData.prices.length-1});
+    addLog(day,'buy',t.label+' deployed', fmt(Math.round(amount)));
+  });
+}
+
+function tryDeployCompare(day, drawdown) {
+  const priceB = simDataCompare[day];
+  const ddB = Math.max(0, (peakValue-priceB)/peakValue*100);
+
+  ['signal','spread'].forEach(m => {
+    const defs = tranchesCompare[m];
+    const containerId = m==='signal' ? 'cmpSignalTranches' : 'cmpSpreadTranches';
+    defs.forEach((t,i) => {
+      if (t.deployed) return;
+      const trigger = m==='spread' ? day >= t.timeDay : ddB >= t.threshold;
+      if (!trigger) return;
+      t.deployed = true; t.deployedPrice = priceB; t.deployedAmount = totalPowder*(t.pct/100);
+      const barEl = document.getElementById(`${containerId}-bar-${i}`);
+      const pctEl = document.getElementById(`${containerId}-pct-${i}`);
+      if (barEl) { barEl.style.width='100%'; barEl.style.background=t.color; }
+      if (pctEl) pctEl.textContent = t.pct+'%';
+      if (m==='spread') chartData.buysB.push({idx: day});
+    });
+  });
+}
+
+function updateStatus(drawdown, price, recovering) {
+  const pill = document.getElementById('statusPill');
+  const text = document.getElementById('statusText');
+  pill.className = 'status-pill';
+  if (recovering && price >= peakValue*0.98) { pill.classList.add('pill-bull'); text.textContent='Fully Recovered'; }
+  else if (recovering) { pill.classList.add('pill-recovery'); text.textContent=`Recovering +${(((price-simData[crashDays])/simData[crashDays])*100).toFixed(0)}%`; }
+  else if (drawdown < 0.5) { pill.classList.add('pill-bull'); text.textContent='Bull Market'; }
+  else if (drawdown < 10) { pill.classList.add('pill-bull'); text.textContent='Minor Pullback'; }
+  else if (drawdown < 20) { pill.classList.add('pill-correction'); text.textContent=`Correction −${drawdown.toFixed(0)}%`; }
+  else if (drawdown < 35) { pill.classList.add('pill-bear'); text.textContent=`Bear Market −${drawdown.toFixed(0)}%`; }
+  else { pill.classList.add('pill-crash'); text.textContent=`CRASH −${drawdown.toFixed(0)}%`; }
+}
+
+function updateInsight(dd) {
+  let msg = dd > 40 ? 'Maximum fear territory. Historically, this is where the greatest wealth transfers occur — from those who panicked to those who prepared.'
+    : dd > 30 ? 'A −30% or deeper crash has historically yielded 80%+ gains for investors who deployed dry powder near the trough.'
+    : dd > 20 ? 'Bear market territory. Signal-based buyers should be deploying mid-range tranches right now.'
+    : dd > 10 ? 'A correction has arrived. Spread-out buyers begin their first weekly deployment. Signal buyers wait for deeper thresholds.'
+    : dd > 0 ? 'Recovery underway. Deployed tranches are now appreciating. Patience is the final ingredient.'
+    : INSIGHTS[Math.floor(Math.random()*INSIGHTS.length)];
+
+  document.getElementById('insightBox').innerHTML = `
+    <div class="insight"><div class="insight-title">Live Analysis · Day ${simDay}</div><div class="insight-body">${msg}</div></div>
+    <div class="insight" style="border-left-color:var(--teal);"><div class="insight-title">Did You Know</div><div class="insight-body">${DID_YOU_KNOW[Math.floor(Math.random()*DID_YOU_KNOW.length)]}</div></div>
+  `;
+}
+
+function addLog(day, type, label, val) {
+  const wrap = document.getElementById('logWrap');
+  const empty = wrap.querySelector('.log-empty');
+  if (empty) empty.remove();
+  const e = document.createElement('div');
+  e.className = 'log-entry';
+  e.innerHTML = `<div class="log-day">D${day}</div><div class="log-type ${type}">${label}</div><div class="log-amt">${val}</div>`;
+  wrap.insertBefore(e, wrap.firstChild);
+}
+
+function finishSimulation() {
+  clearInterval(simInterval);
+  document.getElementById('btnRun').disabled = false;
+  document.getElementById('btnStep').disabled = true;
+
+  const finalPrice = simData[simData.length-1];
+  const equityBase = portfolioBase - totalPowder;
+  const mktReturn = (finalPrice-peakValue)/peakValue;
+  const buyHoldFinal = equityBase*(1+mktReturn) + totalPowder;
+
+  let crashBuyerFinal = equityBase*(1+mktReturn);
+  let remPowder = totalPowder;
+  tranches.filter(t=>t.deployed).forEach(t => {
+    const amt = totalPowder*(t.pct/100);
+    crashBuyerFinal += amt*(1+(finalPrice-t.deployedPrice)/t.deployedPrice);
+    remPowder -= amt;
+  });
+  crashBuyerFinal += remPowder;
+
+  const diffPct = ((crashBuyerFinal-buyHoldFinal)/buyHoldFinal*100).toFixed(1);
+  const isWin = crashBuyerFinal > buyHoldFinal;
+
+  document.getElementById('resultReturn').textContent = (isWin?'+':'')+diffPct+'%';
+  document.getElementById('resultReturn').style.color = isWin ? 'var(--gold)' : 'var(--red)';
+  document.getElementById('resultBuH').textContent = fmt(Math.round(buyHoldFinal));
+  document.getElementById('resultCB').textContent = fmt(Math.round(crashBuyerFinal));
+  document.getElementById('resultCB').style.color = isWin ? 'var(--gold)' : 'var(--red)';
+
+  const dep = tranches.filter(t=>t.deployed).length, tot = tranches.length;
+  const lesson = !dep ? 'No tranches deployed — the crash did not reach your thresholds. Try spread-out mode or a deeper crash scenario.'
+    : isWin ? `You deployed ${dep}/${tot} tranches and outperformed a passive investor by ${diffPct}%. Preparation, not prediction.`
+    : `With ${dep}/${tot} tranches deployed, the rapid recovery slightly favoured the passive investor. Try hybrid mode for fast-recovering crashes.`;
+
+  document.getElementById('resultInsight').innerHTML = `<div class="insight-title">Lesson</div><div class="insight-body">${lesson}</div>`;
+  addLog(simDay,'info','Complete — Crash Buyer', fmt(Math.round(crashBuyerFinal)));
+  updateCPFCombined(crashBuyerFinal);
+
+  // Compare results
+  if (compareOn) {
+    const finalB = simDataCompare[simDataCompare.length-1];
+    const mktB = (finalB-peakValue)/peakValue;
+    let sigFinal = equityBase*(1+mktB), sprFinal = equityBase*(1+mktB);
+    let rS = totalPowder, rSp = totalPowder;
+    tranchesCompare.signal.filter(t=>t.deployed).forEach(t => { const a=totalPowder*(t.pct/100); sigFinal+=a*(1+(finalB-t.deployedPrice)/t.deployedPrice); rS-=a; });
+    tranchesCompare.spread.filter(t=>t.deployed).forEach(t => { const a=totalPowder*(t.pct/100); sprFinal+=a*(1+(finalB-t.deployedPrice)/t.deployedPrice); rSp-=a; });
+    sigFinal+=rS; sprFinal+=rSp;
+    document.getElementById('cmpSignalResult').textContent = fmt(Math.round(sigFinal));
+    document.getElementById('cmpSpreadResult').textContent = fmt(Math.round(sprFinal));
+  }
+
+  updateStatus(0, finalPrice, true);
+  drawChart();
+}
+
+function resetSimulation(soft=false) {
+  clearInterval(simInterval);
+  simData=[]; simDay=0; peakValue=1000; deployedCapital=0; powderRemaining=0;
+  chartData = {prices:[],buys:[],pricesB:[],buysB:[]};
+  ['dayCounter','statDrawdown','statPowderLeft','statDeployed'].forEach(id => {
+    const el = document.getElementById(id);
+    if (id==='dayCounter') el.textContent='0';
+    else if (id==='statDrawdown') { el.textContent='0.0%'; el.style.color='var(--green)'; }
+    else if (id==='statPowderLeft') { el.textContent='100%'; el.style.color='var(--gold)'; }
+    else el.textContent='$0';
+  });
+  document.getElementById('dpFill').style.width='0%';
+  document.getElementById('dpPointer').style.left='0%';
+  document.getElementById('dpFill').style.background='var(--green)';
+  document.getElementById('resultReturn').textContent='—';
+  document.getElementById('resultBuH').textContent='—';
+  document.getElementById('resultCB').textContent='—';
+  document.getElementById('resultInsight').innerHTML='<div class="insight-title">Lesson</div><div class="insight-body">Complete the simulation to see your outcome.</div>';
+  document.getElementById('statusPill').className='status-pill pill-bull';
+  document.getElementById('statusText').textContent='Ready';
+  document.getElementById('cmpSignalResult').textContent='—';
+  document.getElementById('cmpSpreadResult').textContent='—';
+  if (!soft) {
+    document.getElementById('logWrap').innerHTML='<div class="log-empty">No activity yet.</div>';
+    document.getElementById('btnRun').disabled=false;
+    document.getElementById('btnStep').disabled=true;
+    document.getElementById('insightBox').innerHTML=`
+      <div class="insight"><div class="insight-title">Waiting for Simulation</div><div class="insight-body">Select a scenario above and press Run. The market rewards preparation — not bravery.</div></div>
+      <div class="insight" style="border-left-color:var(--teal);"><div class="insight-title">Did You Know</div><div class="insight-body" id="didYouKnow">${DID_YOU_KNOW[0]}</div></div>
+    `;
+    buildTrancheBars();
+  }
+  initChart(); drawChart();
+}
+
+// ═══════════════════════════════════════════════
+// PRICE ACTION TABLE
+// ═══════════════════════════════════════════════
+const PRICE_TRANCHES = [
+  { label:'Tranche 1', dd:10, pct:15, urgClass:'urg-watch',  urgTxt:'Watch & Buy', color:'var(--green)'  },
+  { label:'Tranche 2', dd:15, pct:20, urgClass:'urg-buy',    urgTxt:'Buy',         color:'var(--orange)' },
+  { label:'Tranche 3', dd:20, pct:20, urgClass:'urg-buy',    urgTxt:'Buy More',    color:'var(--orange)' },
+  { label:'Tranche 4', dd:30, pct:25, urgClass:'urg-strong', urgTxt:'Strong Buy',  color:'var(--red)'    },
+  { label:'Tranche 5', dd:40, pct:20, urgClass:'urg-max',    urgTxt:'Max Buy',     color:'#ff7070'       },
+];
+
+// Index metadata: label, ticker, etf info, default price, input id
+const INDEX_META = {
+  sp500:  { label:'S&P 500',    ticker:'SPY / CSPX',  etf:'SPY (US) / CSPX (London, lower tax) · via IBKR', defaultPrice:740   },
+  nasdaq: { label:'Nasdaq 100', ticker:'NDX / CNDX',  etf:'CNDX (London) · QQQ (US) · via IBKR',       defaultPrice:20800 },
+  msci:   { label:'MSCI World', ticker:'IWDA',         etf:'IWDA (London) · via Endowus / IBKR',         defaultPrice:120   },
+};
+
+// Which index is selected inside Custom mode
+let customIndexSelection = 'sp500';
+
+function setCustomIndex(key, el) {
+  customIndexSelection = key;
+  document.querySelectorAll('.custom-idx-btn').forEach(b => b.classList.remove('active'));
+  if (el) el.classList.add('active');
+
+  const isAll = key === 'all';
+  document.getElementById('cidxSingle').style.display = isAll ? 'none'  : 'block';
+  document.getElementById('cidxAll').style.display    = isAll ? 'block' : 'none';
+
+  if (!isAll) {
+    const meta = INDEX_META[key];
+    document.getElementById('cidxLabel').innerHTML    = `${meta.label} <span class="pi-ticker">${meta.ticker}</span>`;
+    document.getElementById('cidxEtf').textContent    = meta.etf;
+    document.getElementById('price_custom_single').value = meta.defaultPrice;
+    document.getElementById('ptIndexBadge').textContent  = meta.label;
+    document.getElementById('ptCardSub').textContent     = `Custom scenario — showing buy prices for ${meta.label}. Adjust the drawdown sliders above to set your own crash depth.`;
+  } else {
+    document.getElementById('ptIndexBadge').textContent = 'All Indices';
+    document.getElementById('ptCardSub').textContent    = 'Custom scenario — showing buy prices for all three indices simultaneously.';
+  }
+
+  recalcPriceTable();
+}
+
+// Called whenever scenario changes — updates the input UI and badge
+function updatePriceTableIndex() {
+  const s = selectedScenario;
+  const isCustom = !s || s.index === 'custom';
+
+  // Toggle between named-scenario single input and custom selector
+  document.getElementById('ptSingleInput').style.display = isCustom ? 'none'  : 'block';
+  document.getElementById('ptAllInputs').style.display   = isCustom ? 'block' : 'none';
+
+  if (!isCustom) {
+    const meta = INDEX_META[s.index] || INDEX_META.sp500;
+    document.getElementById('ptInputLabel').innerHTML  = `${meta.label} <span class="pi-ticker">${meta.ticker}</span>`;
+    document.getElementById('ptInputEtf').textContent  = meta.etf;
+    document.getElementById('price_active').value      = meta.defaultPrice;
+    document.getElementById('ptIndexBadge').textContent = meta.label;
+    document.getElementById('ptCardTitle').textContent  = `${meta.label} Entry Price Calculator`;
+    document.getElementById('ptCardSub').textContent    = `Buy prices for ${meta.label} only, based on the scenario above. Update the price to today's market level.`;
+  } else {
+    // Restore custom selector state
+    document.getElementById('ptCardTitle').textContent = 'Entry Price Calculator — Custom';
+    setCustomIndex(customIndexSelection, document.getElementById('cidxBtn_' + (customIndexSelection === 'all' ? 'all' : customIndexSelection)));
+    return; // setCustomIndex calls recalcPriceTable already
+  }
+
+  recalcPriceTable();
+}
+
+function recalcPriceTable() {
+  const s = selectedScenario;
+  const isCustom = !s || s.index === 'custom';
+  const dp = powderPct;
+  const thead = document.getElementById('ptHead');
+  const tbody = document.getElementById('priceTableBody');
+
+  // Determine the active index key and price to use
+  let idxKey, price, showAll = false;
+
+  if (!isCustom) {
+    // Named scenario: always single index, use price_active
+    idxKey = s.index;
+    price  = parseFloat(document.getElementById('price_active').value) || 0;
+  } else {
+    // Custom mode: depends on selector
+    if (customIndexSelection === 'all') {
+      showAll = true;
+    } else {
+      idxKey = customIndexSelection;
+      price  = parseFloat(document.getElementById('price_custom_single').value) || 0;
+    }
+  }
+
+  if (!showAll) {
+    // ── Single index table ──
+    const meta     = INDEX_META[idxKey] || INDEX_META.sp500;
+    const maxDD    = isCustom ? maxDrawdownPct : (s ? s.dd : 100);
+
+    thead.innerHTML = `<tr>
+      <th>Tranche</th>
+      <th>Drawdown from Peak</th>
+      <th>SGD to Deploy</th>
+      <th>${meta.label} — Buy At (USD)</th>
+      <th>Recovery to Peak</th>
+      <th>Urgency</th>
+    </tr>`;
+
+    tbody.innerHTML = PRICE_TRANCHES.map(t => {
+      const mult     = 1 - t.dd / 100;
+      const buyPrice = price > 0 ? price * mult : null;
+      const recovPct = ((1 / mult - 1) * 100).toFixed(0);
+      const sgdAmt   = portfolioBase > 0 ? fmtUSD(Math.round(portfolioBase * dp / 100 * t.pct / 100)) : '—';
+      const exceeds  = !isCustom && t.dd > maxDD;
+
+      return `<tr style="${exceeds ? 'opacity:0.3;' : ''}">
+        <td><div class="pt-tranche">${t.label}</div><div class="pt-pct">${t.pct}% of dry powder</div></td>
+        <td><div class="pt-dd" style="color:${exceeds ? 'var(--text-lo)' : t.color};">−${t.dd}%</div></td>
+        <td>
+          <div style="font-family:'Cinzel',serif;font-size:14px;color:var(--gold);">${sgdAmt}</div>
+          <div class="pt-price-sub">${t.pct}% of ${dp}% dry powder</div>
+        </td>
+        <td>
+          <div class="pt-price" style="color:${exceeds ? 'var(--text-lo)' : t.color};">
+            ${buyPrice ? '$' + buyPrice.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}) : '—'}
+          </div>
+          <div class="pt-price-sub">${exceeds ? 'Not reached in this scenario' : `when drops −${t.dd}% from today`}</div>
+        </td>
+        <td><div style="font-family:'Cinzel',serif;font-size:14px;color:var(--teal);">+${recovPct}%</div><div class="pt-price-sub">to return to peak</div></td>
+        <td><span class="pt-urgency ${exceeds ? '' : t.urgClass}" style="${exceeds ? 'background:var(--card2);color:var(--text-lo);' : ''}">${exceeds ? 'N/A' : t.urgTxt}</span></td>
+      </tr>`;
+    }).join('');
+
+  } else {
+    // ── All-three indices table (Custom "All Three" mode) ──
+    const spx  = parseFloat(document.getElementById('price_sp500').value) || 0;
+    const ndx  = parseFloat(document.getElementById('price_ndx').value)   || 0;
+    const msci = parseFloat(document.getElementById('price_msci').value)  || 0;
+
+    thead.innerHTML = `<tr>
+      <th>Tranche</th>
+      <th>Drawdown</th>
+      <th>SGD Deploy</th>
+      <th>S&P 500<br><span style="font-weight:400;color:var(--teal);">CSPX / IVV</span></th>
+      <th>Nasdaq 100<br><span style="font-weight:400;color:var(--teal);">QQQ / CNDX</span></th>
+      <th>MSCI World<br><span style="font-weight:400;color:var(--teal);">IWDA</span></th>
+      <th>Recovery</th>
+      <th>Urgency</th>
+    </tr>`;
+
+    tbody.innerHTML = PRICE_TRANCHES.map(t => {
+      const mult     = 1 - t.dd / 100;
+      const recovPct = ((1 / mult - 1) * 100).toFixed(0);
+      const sgdAmt   = portfolioBase > 0 ? fmtUSD(Math.round(portfolioBase * dp / 100 * t.pct / 100)) : '—';
+      const fP = p => p > 0 ? '$' + (p * mult).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}) : '—';
+
+      return `<tr>
+        <td><div class="pt-tranche">${t.label}</div><div class="pt-pct">${t.pct}% powder</div></td>
+        <td><div class="pt-dd" style="color:${t.color};">−${t.dd}%</div></td>
+        <td><div style="font-family:'Cinzel',serif;font-size:13px;color:var(--gold);">${sgdAmt}</div></td>
+        <td><div class="pt-price" style="color:${t.color};">${fP(spx)}</div></td>
+        <td><div class="pt-price" style="color:${t.color};">${fP(ndx)}</div></td>
+        <td><div class="pt-price" style="color:${t.color};">${fP(msci)}</div></td>
+        <td><div style="font-family:'Cinzel',serif;font-size:13px;color:var(--teal);">+${recovPct}%</div></td>
+        <td><span class="pt-urgency ${t.urgClass}">${t.urgTxt}</span></td>
+      </tr>`;
+    }).join('');
+  }
+}
+
+function fmtUSD(n) {
+  if (n >= 1000000) return '$'+(n/1000000).toFixed(2)+'M';
+  if (n >= 1000) return '$'+n.toLocaleString();
+  return '$'+n;
+}
+
+function fmt(n) {
+  if (n>=1000000) return '$'+(n/1000000).toFixed(2)+'M';
+  if (n>=1000) return '$'+Math.round(n).toLocaleString();
+  return '$'+n;
+}
+
+</script>
+</body>
+</html>

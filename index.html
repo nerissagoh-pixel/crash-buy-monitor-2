@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crash Buy Monitor · Inspirational Sharing</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{--navy:#0f1b2d;--navy2:#162235;--border:#243348;--gold:#c9a84c;--gold-dim:#7a6230;--text-hi:#f0f4f8;--text-mid:#8fa3be;--text-lo:#4a6080;--teal:#38bdf8}
+  body{background:var(--navy);color:var(--text-hi);font-family:'Inter',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px}
+  .brand{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+  .brand-box{width:40px;height:40px;border:1.5px solid var(--gold);display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:13px;color:var(--gold)}
+  .brand-name{font-family:'Cinzel',serif;font-size:14px;color:var(--gold);letter-spacing:.1em}
+  h1{font-family:'Cinzel',serif;font-size:clamp(22px,5vw,34px);font-weight:700;text-align:center;margin:24px 0 8px;letter-spacing:.03em}
+  .sub{font-size:13px;color:var(--text-mid);text-align:center;max-width:520px;line-height:1.7;margin-bottom:40px}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;width:100%;max-width:760px}
+  a.card{display:block;background:var(--navy2);border:1px solid var(--border);border-radius:8px;padding:28px 24px;text-decoration:none;color:inherit;transition:all .2s}
+  a.card:hover{border-color:var(--gold);transform:translateY(-3px)}
+  .card-tag{font-family:'Cinzel',serif;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold-dim);margin-bottom:10px}
+  .card-title{font-family:'Cinzel',serif;font-size:20px;font-weight:600;margin-bottom:8px}
+  .card-desc{font-size:12px;color:var(--text-mid);line-height:1.6}
+  .card-go{margin-top:16px;font-size:11px;color:var(--teal);letter-spacing:.06em}
+  footer{margin-top:48px;font-size:10px;color:var(--text-lo);letter-spacing:.1em;text-transform:uppercase;text-align:center}
+</style>
+</head>
+<body>
+  <div class="brand">
+    <div class="brand-box">IS</div>
+    <div class="brand-name">Inspirational Sharing</div>
+  </div>
+  <h1>Crash Buy Monitor</h1>
+  <div class="sub">
+    Mr. Loo's crash-buying system, tracked live. Watch how far the markets are from their all-time highs, and rehearse deploying dry powder before the next crash arrives.
+  </div>
+  <div class="cards">
+    <a class="card" href="drawdown_monitor.html">
+      <div class="card-tag">Live Tracker</div>
+      <div class="card-title">Drawdown Monitor</div>
+      <div class="card-desc">Current distance from all-time highs for SPY, QQQ, URTH &amp; IWDA — synced with your Telegram alerts. Shows the next buy trigger for each.</div>
+      <div class="card-go">Open dashboard →</div>
+    </a>
+    <a class="card" href="crash-buying-simulator.html">
+      <div class="card-tag">Practice Tool</div>
+      <div class="card-title">Crash Buying Simulator</div>
+      <div class="card-desc">Replay 13 historical crashes and watch Mr. Loo's Method 1 tranche ladder deploy — signal-based, spread-out, or hybrid.</div>
+      <div class="card-go">Open simulator →</div>
+    </a>
+  </div>
+  <footer>Inspirational Sharing · Educational Purposes Only · Not Financial Advice</footer>
+</body>
+</html>
