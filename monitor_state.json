@@ -16,11 +16,13 @@
     "last_drawdown": 11.513100865423601
   },
   "msci": {
-    "triggered": [],
+    "triggered": [
+      "Tranche 1"
+    ],
     "peak": 161.35000610351562,
     "peak_date": "27 Feb 2026",
-    "last_price": NaN,
-    "last_drawdown": NaN
+    "last_price": 141.4499969482422,
+    "last_drawdown": 12.333441836070584
   },
-  "last_run_utc": "2026-07-30T02:28:05.800522+00:00"
+  "last_run_utc": "2026-07-30T06:45:54.736041+00:00"
 }
