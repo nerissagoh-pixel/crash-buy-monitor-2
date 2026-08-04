@@ -24,19 +24,19 @@
     "last_price": 141.52000427246094,
     "last_drawdown": 12.290053350436542
   },
-  "last_run_utc": "2026-08-03T21:30:56.606735+00:00",
+  "last_run_utc": "2026-08-04T13:05:45.737271+00:00",
   "msci_urth": {
     "triggered": [],
-    "peak": 206.00999450683594,
+    "peak": 206.0399932861328,
     "peak_date": "03 Aug 2026",
     "last_price": 205.85000610351562,
-    "last_drawdown": 0.07766050559988907
+    "last_drawdown": 0.09220888604541333
   },
   "msci_iwda": {
     "triggered": [],
-    "peak": 145.8125,
-    "peak_date": "03 Aug 2026",
-    "last_price": 145.14999389648438,
-    "last_drawdown": 0.45435480738319756
+    "peak": 146.2100067138672,
+    "peak_date": "04 Aug 2026",
+    "last_price": 146.10000610351562,
+    "last_drawdown": 0.07523466609698853
   }
 }
