@@ -5,8 +5,8 @@
     ],
     "peak": 781.6199951171875,
     "peak_date": "06 Oct 2026",
-    "last_price": 714.530029296875,
-    "last_drawdown": 8.583450556463026
+    "last_price": 713.9500122070312,
+    "last_drawdown": 8.657657599971014
   },
   "nasdaq": {
     "triggered": [
@@ -16,8 +16,8 @@
     ],
     "peak": 762.8599853515625,
     "peak_date": "06 Oct 2026",
-    "last_price": 634.9149780273438,
-    "last_drawdown": 16.771754945995173
+    "last_price": 632.635009765625,
+    "last_drawdown": 17.07062607641212
   },
   "msci": {
     "triggered": [
@@ -28,15 +28,15 @@
     "last_price": 141.52000427246094,
     "last_drawdown": 12.290053350436542
   },
-  "last_run_utc": "2026-11-24T15:30:50.274788+00:00",
+  "last_run_utc": "2026-11-24T16:30:46.381396+00:00",
   "msci_urth": {
     "triggered": [
       "Tranche 1"
     ],
     "peak": 211.94000244140625,
     "peak_date": "13 Aug 2026",
-    "last_price": 193.41000366210938,
-    "last_drawdown": 8.743039806475302
+    "last_price": 193.85499572753906,
+    "last_drawdown": 8.533078468217456
   },
   "msci_iwda": {
     "triggered": [
@@ -44,7 +44,7 @@
     ],
     "peak": 149.8300018310547,
     "peak_date": "13 Aug 2026",
-    "last_price": 137.42999267578125,
-    "last_drawdown": 8.276052194977238
+    "last_price": 136.42999267578125,
+    "last_drawdown": 8.943475266310829
   }
 }
